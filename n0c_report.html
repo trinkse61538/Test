@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Báo Cáo N0C 2026 — Hiệu Suất Chiến Dịch (Tuần 1)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card-hover: #263348;
+    --border: #334155;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --accent: #38bdf8;
+    --green: #22c55e;
+    --green-bg: rgba(34,197,94,0.12);
+    --red: #ef4444;
+    --red-bg: rgba(239,68,68,0.12);
+    --orange: #f59e0b;
+    --orange-bg: rgba(245,158,11,0.12);
+    --blue: #3b82f6;
+    --purple: #a855f7;
+    --pink: #ec4899;
+    --teal: #14b8a6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+  .header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(56,189,248,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header-badge {
+    display: inline-block;
+    background: rgba(56,189,248,0.15);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+  .header p { color: var(--text-muted); font-size: 14px; }
+  .header-meta {
+    display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap;
+  }
+  .header-meta span {
+    font-size: 13px; color: var(--text-muted);
+  }
+  .header-meta strong { color: var(--text); font-weight: 600; }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px 40px; }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s;
+  }
+  .kpi-card:hover { background: var(--card-hover); }
+  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 6px; }
+  .kpi-value { font-size: 28px; font-weight: 700; }
+  .kpi-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .kpi-trend { font-size: 12px; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; }
+  .trend-tot { background: var(--green-bg); color: var(--green); }
+  .trend-vua { background: var(--orange-bg); color: var(--orange); }
+  .trend-xau { background: var(--red-bg); color: var(--red); }
+
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 900px) { .chart-grid { grid-template-columns: 1fr; } }
+
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .chart-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--text-muted); }
+  .chart-card.full { grid-column: 1 / -1; }
+  .chart-wrap { position: relative; width: 100%; }
+  .chart-wrap canvas { width: 100% !important; }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    text-align: left; padding: 10px 12px; color: var(--text-muted);
+    font-weight: 600; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.5px; border-bottom: 1px solid var(--border);
+  }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(51,65,85,0.5); }
+  tr:hover td { background: var(--card-hover); }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 6px;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge-xanh { background: var(--green-bg); color: var(--green); }
+  .badge-do { background: var(--red-bg); color: var(--red); }
+  .badge-cam { background: var(--orange-bg); color: var(--orange); }
+  .badge-xanhduong { background: rgba(59,130,246,0.12); color: var(--blue); }
+
+  .insight-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .insight-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 3px solid var(--accent);
+  }
+  .insight-card.canhbao { border-left-color: var(--orange); }
+  .insight-card.nguyhiem { border-left-color: var(--red); }
+  .insight-card.thanhcong { border-left-color: var(--green); }
+  .insight-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .insight-card p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+  .section-title {
+    font-size: 16px; font-weight: 700; margin: 32px 0 16px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+
+  .tabs {
+    display: flex; gap: 4px; margin-bottom: 16px;
+    background: var(--card); border-radius: 10px; padding: 4px;
+    border: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .tab {
+    padding: 8px 16px; border: none; background: transparent;
+    color: var(--text-muted); cursor: pointer; border-radius: 8px;
+    font-size: 13px; font-weight: 500; transition: all 0.15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--accent); color: #0f172a; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .lead-table-wrap { max-height: 400px; overflow-y: auto; }
+
+  .footer {
+    text-align: center; padding: 32px; color: var(--text-muted);
+    font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">📊 Báo Cáo Hiệu Suất Tuần</div>
+  <h1>N0C 2026 — Chiến Dịch Lead Gen Climate-Tech</h1>
+  <p>Tuần 1 · 01–08/07/2026 · Thị trường Việt Nam (Meta Ads) + LinkedIn (đã tắt)</p>
+  <div class="header-meta">
+    <span>📅 <strong>Kỳ báo cáo:</strong> 01–08/07/2026</span>
+    <span>🎯 <strong>Mục tiêu:</strong> 350–400 leads (Th7) · CPL ~63.750–76.500₫ ($2.50–3.00)</span>
+    <span>💰 <strong>Ngân sách:</strong> 25.500.000₫ ($1,000)</span>
+    <span>📈 <strong>Trạng thái:</strong> <span style="color:var(--green)">🔵 Đang chạy · Đã tắt LinkedIn</span></span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ===== KPI TỔNG QUAN ===== -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-label">Tổng Leads (Tuần 1)</div>
+    <div class="kpi-value" style="color:var(--accent)">64</div>
+    <div class="kpi-sub">Facebook: 63 · LinkedIn: 1</div>
+    <div class="kpi-trend trend-tot">📈 ~16 leads/ngày → ~496/tháng</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Tổng Chi (Tuần 1)</div>
+    <div class="kpi-value" style="color:var(--orange)">2.144.113₫</div>
+    <div class="kpi-sub">Meta 751.813₫ + LinkedIn 1.392.300₫ · 8,4% tổng ngân sách</div>
+    <div class="kpi-trend trend-tot">⛔ LinkedIn đã tắt</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">CPL Meta Thực Tế</div>
+    <div class="kpi-value" style="color:var(--green)">11.747₫</div>
+    <div class="kpi-sub">~$0.46/lead</div>
+    <div class="kpi-trend trend-tot">🎯 Thấp hơn target 82% (~63.750₫)</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">CPL LinkedIn</div>
+    <div class="kpi-value" style="color:var(--red)">1.392.300₫</div>
+    <div class="kpi-sub">~$54.60/lead — Đã tắt</div>
+    <div class="kpi-trend trend-xau">⛔ Gấp 5 lần ngưỡng ~306.000₫ ($12)</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Tiến Độ Target</div>
+    <div class="kpi-value" style="color:var(--accent)">16–18%</div>
+    <div class="kpi-sub">64 / 350–400 mục tiêu tháng</div>
+    <div class="kpi-trend trend-tot">📊 Dự phóng ~496 leads</div>
+  </div>
+</div>
+
+<!-- ===== INSIGHTS ===== -->
+<div class="section-title">💡 Nhận Định Chính</div>
+<div class="insight-grid">
+  <div class="insight-card thanhcong">
+    <h4>✅ CPL Meta Cực Rẻ — Chỉ 11.747₫</h4>
+    <p>CPL Meta thực tế <strong>11.747₫</strong> (~$0.46) — siêu thấp so với target 63.750₫ ($2.50). Thị trường Việt Nam đang cho leads cực kỳ hiệu quả, rất tốt cho giai đoạn test và validation.</p>
+  </div>
+  <div class="insight-card canhbao">
+    <h4>⚠️ Tập Trung Quá Nhiều Vào Việt Nam</h4>
+    <p>98,4% leads từ <strong>Việt Nam</strong> (63/64). Kế hoạch có 6 thị trường Meta. Ấn Độ (6.732.000₫), Châu Phi (4.488.000₫), ĐNA (3.814.800₫) chưa được kích hoạt.</p>
+  </div>
+  <div class="insight-card nguyhiem">
+    <h4>⛔ LinkedIn: 1.392.300₫ Cho 1 Lead</h4>
+    <p>Chạy 2 ngày, tiêu <strong>1.392.300₫</strong> ($54.60), được <strong>1 lead</strong> → CPL 1.392.300₫ (gấp 5 lần ngưỡng ~306.000₫). Anh Trí đã <strong>tắt LinkedIn</strong> — quyết định đúng. Còn ~1.667.700₫ ($65.40) đề xuất tái phân bổ sang Meta.</p>
+  </div>
+  <div class="insight-card">
+    <h4>📈 Tốc Độ Tốt Nếu Scale Được</h4>
+    <p>~16 leads/ngày từ Meta VN → dự phóng <strong>496 leads/tháng</strong> — vượt target 350–400. Scale Ấn Độ + Châu Phi có thể đạt kịch bản Optimistic (394 leads).</p>
+  </div>
+</div>
+
+<!-- ===== TABS ===== -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('tongquan')">📊 Tổng Quan</button>
+  <button class="tab" onclick="switchTab('meta')">🔥 Meta Ads</button>
+  <button class="tab" onclick="switchTab('kh')">📋 Kế Hoạch vs Thực Tế</button>
+  <button class="tab" onclick="switchTab('leads')">👤 Danh Sách Lead</button>
+</div>
+
+<!-- ===== TAB: TỔNG QUAN ===== -->
+<div id="tab-tongquan" class="tab-content active">
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>📈 Leads Theo Ngày</h3>
+      <div class="chart-wrap"><canvas id="dailyLeadsChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>📊 Phân Bổ Nguồn</h3>
+      <div class="chart-wrap"><canvas id="sourceChart"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>💵 Chi Tiêu Meta Theo Ngày</h3>
+      <div class="chart-wrap"><canvas id="dailySpendChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>📉 Xu Hướng CPL Hàng Ngày (Meta)</h3>
+      <div class="chart-wrap"><canvas id="dailyCplChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB: META ADS ===== -->
+<div id="tab-meta" class="tab-content">
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>🎯 Leads Theo Ad</h3>
+      <div class="chart-wrap"><canvas id="adLeadsChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>💰 Chi Tiêu Theo Ad</h3>
+      <div class="chart-wrap"><canvas id="adSpendChart"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>💲 CPL Theo Ad</h3>
+      <div class="chart-wrap"><canvas id="adCplChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>👁️ Lượt Hiển Thị & Tiếp Cận</h3>
+      <div class="chart-wrap"><canvas id="adImprChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-card full" style="margin-top:16px;">
+    <h3>📋 Hiệu Suất Từng Ad (Meta) — Giai Đoạn: 05–08/07/2026</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ad</th>
+            <th>Chi Tiêu</th>
+            <th>Leads</th>
+            <th>CPL</th>
+            <th>CPL (USD)</th>
+            <th>Hiển Thị</th>
+            <th>Tiếp Cận</th>
+            <th>Đánh Giá</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ad_1</strong></td>
+            <td>367.852₫</td>
+            <td>30</td>
+            <td>12.262₫</td>
+            <td>$0.48</td>
+            <td>8.285</td>
+            <td>6.101</td>
+            <td><span class="badge badge-xanh">✅ Volume tốt nhất</span></td>
+          </tr>
+          <tr>
+            <td><strong>Ad_4</strong></td>
+            <td>307.940₫</td>
+            <td>37</td>
+            <td>8.323₫</td>
+            <td>$0.33</td>
+            <td>6.069</td>
+            <td>4.147</td>
+            <td><span class="badge badge-xanh">🏆 CPL rẻ nhất</span></td>
+          </tr>
+          <tr>
+            <td><strong>Ad_2</strong></td>
+            <td>65.236₫</td>
+            <td>1</td>
+            <td>65.236₫</td>
+            <td>$2.56</td>
+            <td>1.277</td>
+            <td>1.065</td>
+            <td><span class="badge badge-do">⚠️ CPL cao</span></td>
+          </tr>
+          <tr>
+            <td><strong>Ad_3</strong></td>
+            <td>10.785₫</td>
+            <td>1</td>
+            <td>10.785₫</td>
+            <td>$0.42</td>
+            <td>203</td>
+            <td>164</td>
+            <td><span class="badge badge-cam">⚠️ Ít delivery</span></td>
+          </tr>
+          <tr style="background:var(--card-hover); font-weight:600;">
+            <td><strong>Tổng Meta</strong></td>
+            <td>751.813₫</td>
+            <td>69 *</td>
+            <td>10.896₫</td>
+            <td>$0.43</td>
+            <td>15.834</td>
+            <td>11.477</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td colspan="8" style="font-size:11px;color:var(--text-muted);padding-top:2px;">* Leads từ Meta CSV (leadgen.other) cao hơn lead thực tế trong CRM (63). CRM là số lead hợp lệ.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB: KẾ HOẠCH vs THỰC TẾ ===== -->
+<div id="tab-kh" class="tab-content">
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>🎯 Mục Tiêu vs Thực Tế (Tháng)</h3>
+      <div class="chart-wrap"><canvas id="targetChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>💰 Phân Bổ Ngân Sách & Sử Dụng</h3>
+      <div class="chart-wrap"><canvas id="budgetChart"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>🌍 Phủ Sóng Thị Trường</h3>
+      <div class="table-wrap" style="margin-top:8px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Thị Trường</th>
+              <th>Kênh</th>
+              <th>Ngân Sách</th>
+              <th>Trạng Thái</th>
+              <th>Leads</th>
+              <th>Ghi Chú</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>🇻🇳 Việt Nam</td>
+              <td>Meta</td>
+              <td>4.488.000₫ ($176)</td>
+              <td><span class="badge badge-xanh">🟢 Đang chạy</span></td>
+              <td><strong>63</strong></td>
+              <td>CPL 11.747₫ — Quá tốt</td>
+            </tr>
+            <tr>
+              <td>🇮🇳 Ấn Độ</td>
+              <td>Meta</td>
+              <td>6.732.000₫ ($264)</td>
+              <td><span class="badge badge-cam">🟡 Chưa chạy</span></td>
+              <td>—</td>
+              <td>Ngân sách lớn nhất</td>
+            </tr>
+            <tr>
+              <td>🌍 Châu Phi</td>
+              <td>Meta</td>
+              <td>4.488.000₫ ($176)</td>
+              <td><span class="badge badge-cam">🟡 Chưa chạy</span></td>
+              <td>—</td>
+              <td>KH: khởi chạy 7/7</td>
+            </tr>
+            <tr>
+              <td>🌏 Đông Nam Á</td>
+              <td>Meta</td>
+              <td>3.814.800₫ ($149.60)</td>
+              <td><span class="badge badge-cam">🟡 Chưa chạy</span></td>
+              <td>—</td>
+              <td>KH: tuần 2</td>
+            </tr>
+            <tr>
+              <td>🇹🇼🇭🇰 Đài Loan + Hong Kong</td>
+              <td>Meta</td>
+              <td>2.019.600₫ ($79.20)</td>
+              <td><span class="badge badge-cam">🟡 Chưa chạy</span></td>
+              <td>—</td>
+              <td>KH: tuần 2</td>
+            </tr>
+            <tr>
+              <td>🇺🇸🇪🇺 Mỹ + Châu Âu</td>
+              <td>Meta</td>
+              <td>897.600₫ ($35.20)</td>
+              <td><span class="badge badge-cam">🟡 Chưa chạy</span></td>
+              <td>—</td>
+              <td>Budget test</td>
+            </tr>
+            <tr>
+              <td>🌍 Global</td>
+              <td>LinkedIn</td>
+              <td>3.060.000₫ ($120)</td>
+              <td><span class="badge badge-do">🔴 Đã tắt</span></td>
+              <td><strong>1</strong></td>
+              <td>Đã tiêu 1.392.300₫ ($54.60) · CPL 1.392.300₫ · Còn 1.667.700₫</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>📊 Các Kịch Bản Dự Phóng</h3>
+      <div class="chart-wrap"><canvas id="scenarioChart"></canvas></div>
+      <div style="margin-top:12px; display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:8px;">
+        <div style="background:var(--red-bg); border-radius:8px; padding:12px; text-align:center;">
+          <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">🔴 Bảo Thủ</div>
+          <div style="font-size:20px; font-weight:700; color:var(--red);">272</div>
+          <div style="font-size:11px; color:var(--text-muted);">CPL ~93.840₫</div>
+        </div>
+        <div style="background:var(--orange-bg); border-radius:8px; padding:12px; text-align:center; border:1px solid var(--orange);">
+          <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">⭐ Mục Tiêu</div>
+          <div style="font-size:20px; font-weight:700; color:var(--orange);">368–394</div>
+          <div style="font-size:11px; color:var(--text-muted);">CPL 63.750–68.850₫</div>
+        </div>
+        <div style="background:var(--green-bg); border-radius:8px; padding:12px; text-align:center;">
+          <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">🟢 Lạc Quan</div>
+          <div style="font-size:20px; font-weight:700; color:var(--green);">394</div>
+          <div style="font-size:11px; color:var(--text-muted);">CPL ~64.770₫</div>
+        </div>
+        <div style="background:var(--green-bg); border-radius:8px; padding:12px; text-align:center; border:1px solid var(--accent);">
+          <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">📈 VN Pace (T1)</div>
+          <div style="font-size:20px; font-weight:700; color:var(--accent);">496</div>
+          <div style="font-size:11px; color:var(--text-muted);">CPL ~11.747₫</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB: DANH SÁCH LEAD ===== -->
+<div id="tab-leads" class="tab-content">
+  <div class="chart-card">
+    <div class="kpi-row" style="margin-bottom:16px; grid-template-columns: repeat(4, 1fr);">
+      <div style="text-align:center;">
+        <div style="font-size:32px; font-weight:700; color:var(--accent);">64</div>
+        <div style="font-size:11px; color:var(--text-muted);">Tổng Leads</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:32px; font-weight:700; color:var(--blue);">63</div>
+        <div style="font-size:11px; color:var(--text-muted);">Facebook</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:32px; font-weight:700; color:var(--blue);">1</div>
+        <div style="font-size:11px; color:var(--text-muted);">LinkedIn</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:32px; font-weight:700; color:var(--green);">0</div>
+        <div style="font-size:11px; color:var(--text-muted);">Đã Liên Hệ</div>
+      </div>
+    </div>
+
+    <div class="lead-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Ngày</th>
+            <th>Họ Tên</th>
+            <th>Email</th>
+            <th>Công Ty</th>
+            <th>Địa Điểm</th>
+            <th>Nguồn</th>
+            <th>Trạng Thái</th>
+          </tr>
+        </thead>
+        <tbody id="leadTableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ĐỀ XUẤT ===== -->
+<div class="section-title">🎯 Đề Xuất Cho Tuần 2</div>
+<div class="insight-grid">
+  <div class="insight-card">
+    <h4>1️⃣ Launch Các Thị Trường Meta Còn Lại</h4>
+    <p><strong>Ưu tiên:</strong> Ấn Độ (6.732.000₫) và Châu Phi (4.488.000₫) — chiếm 50% ngân sách Meta. Dùng creative đã validated từ VN (Ad_1 & Ad_4). Đây là key để đạt target 350–400.</p>
+  </div>
+  <div class="insight-card canhbao">
+    <h4>2️⃣ Fix Hoặc Tắt Ad_2 & Ad_3</h4>
+    <p>Ad_2 có CPL <strong>65.236₫</strong> (gấp 5.5 lần TB). Ad_3 gần như không delivery (203 impressions trong 4 ngày). Nên refresh creative hoặc tái phân bổ budget qua Ad_1 và Ad_4.</p>
+  </div>
+  <div class="insight-card thanhcong">
+    <h4>3️⃣ Tái Phân Bổ 1.667.700₫ Còn Lại Của LinkedIn</h4>
+    <p>LinkedIn CPL <strong>1.392.300₫</strong> — đã tắt đúng lúc. Còn <strong>1.667.700₫</strong> ($65.40) có thể chuyển sang Meta, ưu tiên Ấn Độ hoặc mở rộng VN lookalike. Có thể thử lại LinkedIn tháng 8 với budget nhỏ hơn.</p>
+  </div>
+  <div class="insight-card thanhcong">
+    <h4>4️⃣ Scale Ad Thắng Tại Việt Nam</h4>
+    <p>Ad_4 (CPL 8.323₫, 37 leads) và Ad_1 (CPL 12.262₫, 30 leads) đang outperform target gấp 5–7 lần. Có thể tăng daily budget, mở rộng lookalike, dùng format tương tự cho thị trường quốc tế.</p>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+  Báo Cáo N0C 2026 · Tạo lúc 08/07/2026 · Tỷ giá quy đổi: 25.500₫/$1 · Nguồn: Meta Ads, LinkedIn (đã tắt), Lead CRM
+</div>
+
+<script>
+// ===== DATA =====
+const leadsByDate = [0,0,0,0,12,12,15,25,0];
+const dateLabels = ['01/7','02/7','03/7','04/7','05/7','06/7','07/7','08/7','09/7'];
+const spendByDate = [0,0,0,0,261218,226473,208916,55206];
+
+const adNames = ['Ad_1','Ad_2','Ad_3','Ad_4'];
+const adLeads = [30,1,1,37];
+const adSpend = [367852,65236,10785,307940];
+const adCpl = [12262,65236,10785,8323];
+const adImpr = [8285,1277,203,6069];
+const adReach = [6101,1065,164,4147];
+
+const leadsData = [
+  {date:"04/7",name:"Nguyễn Nhật Minh",email:"augustineminh.work@gmail.com",company:"Western Sydney University",country:"VN",source:"Facebook"},
+  {date:"04/7",name:"Nguyễn Ngọc Minh",email:"Hiqthienan@gmail.com",company:"Cty TNHH TM DV TH HIQ Thiên An",country:"VN",source:"Facebook"},
+  {date:"04/7",name:"PHAN TUẤN ANH",email:"gis.pta@hust.org.vn",company:"VESDI",country:"VN",source:"Facebook"},
+  {date:"04/7",name:"Vinh Dang",email:"dangthevinhs@gmail.com",company:"Cty TNHH XD Phuc Minh Anh",country:"VN",source:"Facebook"},
+  {date:"04/7",name:"Nguyen Duy Hung",email:"hung.nd@solenvn.com",company:"SOLEN ENVIRONMENTAL SOLUTIONS JSC.",country:"VN",source:"Facebook"},
+  {date:"04/7",name:"Lam Nguyen",email:"lam.nthai@greenfeed.com.vn",company:"Esgin",country:"VN",source:"Facebook"},
+  {date:"04/7",name:"Nguyễn Hoàng Nguyên",email:"iamnghoangnguyen@gmail.com",company:"Viettel",country:"VN",source:"Facebook"},
+  {date:"04/7",name:"Huynh Van Tu An",email:"anhvt23416@st.uel.edu.vn",company:"UEL",country:"VN",source:"Facebook"},
+  {date:"04/7",name:"Huong tran",email:"huong.tt@teko.vn",company:"Karbonmap",country:"VN",source:"Facebook"},
+  {date:"04/7",name:"Andres",email:"andres@agintellisense.com.au",company:"Agintellisense Pty. Ltd",country:"VN",source:"Facebook"},
+  {date:"04/7",name:"Cao Phúc Khải Hoàn",email:"hoancaophuckhai@gmail.com",company:"TP Hồ Chí Minh",country:"VN",source:"Facebook"},
+  {date:"04/7",name:"Ngô Tuấn",email:"24147132@hcmus.edu.vn",company:"VNU-HCMUS",country:"VN",source:"Facebook"},
+  {date:"05/7",name:"Le Nhi",email:"lethinhi142160@gmail.com",company:"Cá nhân",country:"VN",source:"Facebook"},
+  {date:"05/7",name:"Dũng Vũ",email:"banvietagricare@bvgmail.com",company:"TNHH TM XNK Bản Việt",country:"VN",source:"Facebook"},
+  {date:"05/7",name:"Trần Lê Quốc Việt",email:"viet.tranlequoc@stu.edu.vn",company:"ĐH Công Nghệ Sài Gòn",country:"VN",source:"Facebook"},
+  {date:"05/7",name:"Lucy Vu",email:"ngochuyenvuxscor@gmail.com",company:"Nanjing University",country:"VN",source:"Facebook"},
+  {date:"05/7",name:"Roman Abrahieumovich",email:"ltdhieu@egc.com.vn",company:"Nhà máy Lọc dầu Dung Quất",country:"VN",source:"Facebook"},
+  {date:"05/7",name:"Lê Khanh",email:"lekhanh.te@gmail.com",company:"GSL",country:"VN",source:"Facebook"},
+  {date:"05/7",name:"San Bội Đức",email:"boiduc2288@gmail.com",company:"Cty CP SGREE",country:"VN",source:"Facebook"},
+  {date:"05/7",name:"Jolanda Tromp",email:"Jolanda.tromp@oswego.edu",company:"Duy Tan University",country:"VN",source:"Facebook"},
+  {date:"05/7",name:"Nguyễn Xuân Duy",email:"duy.ntu.edu@gmail.com",company:"Dashob Farm",country:"VN",source:"Facebook"},
+  {date:"05/7",name:"Hà Thị Mỹ Hạnh",email:"hanh@brightz.vn",company:"Cty CP Brightz",country:"VN",source:"Facebook"},
+  {date:"05/7",name:"TRUNG TRAN",email:"trungtran110324@gmail.com",company:"Merdes agency",country:"VN",source:"Facebook"},
+  {date:"05/7",name:"Oanh Luong",email:"Oanhluongnhu@gmail.com",company:"UN",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"George mathew",email:"george@teamsustain.in",company:"TeamSustain VN",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"Nguyen V. Tu",email:"Nvtu@ils.vast.vn",company:"VAST",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"Nong Bang Nguyen",email:"nongbangnguyen@gmail.com",company:"VASS",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"Ngo Dinh Thanh",email:"ndthanh@dut.udn.vn",company:"DUT - Đà Nẵng",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"Hoa Pham",email:"Hoapx@stechvn.vn",company:"Stech Viet Nam",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"Nguyễn Thanh Tân",email:"ng_t_tan@yahoo.com",company:"Drop & Drink",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"Jimmy Trịnh",email:"Trinhminhtris@gmail.com",company:"Cultivation 175 JSC",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"James Vu",email:"Corcchar@corcchar.com",company:"Corcchar Việt Nam",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"Thuan Dao",email:"thuandao@ebk.vn",company:"EBK",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"Nguyen Thi Thanh Tam",email:"tamsenviet2011@gmail.com",company:"Solen",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"Nguyen Hung Thinh",email:"Goldkingbillions@gmail.com",company:"Nev",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"Jaap",email:"Contact@jaapbrasser.com",company:"OptiTrion",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"Đời ĐxTivixxdd",email:"Phanluccongthanh@gmail.com",company:"Nn",country:"VN",source:"Facebook"},
+  {date:"06/7",name:"Tran Tan Viet",email:"viettt@ttcagris.com.vn",company:"TTC-AgriS",country:"Hồ Chí Minh",source:"Facebook"},
+  {date:"06/7",name:"Đỗ Thế Nguyên Vũ",email:"nguyenvudothe@gmail.com",company:"Cty CP Agrii Asia",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Hiep Nguyen",email:"hiep@newkaizen.vn",company:"Global New Kaizen Academy",country:"VN",source:"LinkedIn"},
+  {date:"07/7",name:"Khánh Nhi",email:"khanhnhihuynh11@gmail.com",company:"MM Mega Market Vietnam",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Nguyen Thanh Binh",email:"binh.ngthanh@hcmuaf.edu.vn",company:"Nong Lam University HCMC",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Nguyen Ha Minh Quan",email:"Erik.nguyen@ibasvn.com",company:"IBAS",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Nguyen Quoc Trinh",email:"maitrinhvietnam@gmail.com",company:"Vast",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Mr K",email:"binhbb2015@gmail.com",company:"Dinotech",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Kevin Coleman",email:"Kevin@sparkstart.io",company:"Charles Schwab",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Hoàng Vĩnh Phúc",email:"phuc.hoangvinh@eurofinsasia.com",company:"Eurofins Sac Ky Hai Dang",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Oanh Pham",email:"Trieutu1905@gmail.com",company:"Đỗ Nhật Trường",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Vo Thanh Huy",email:"Vothanhhuy@muce.edu.vn",company:"Mientrung University",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Vinh Đoàn",email:"kevindqv@gmail.com",company:"TDW Architects",country:"Hồ Chí Minh",source:"Facebook"},
+  {date:"07/7",name:"Thắng",email:"thang.huynhquang@gmail.com",company:"TNH",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Kerim",email:"kevin.sales.hcmc@gmail.com",company:"Ahead",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Pham Xuan Vinh",email:"xuanvinh@xanhvaxanh.vn",company:"NN Xanh và Xanh",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Lan Hương Nguyễn",email:"Ceo@vietphuc.vn",company:"Vietphuc.vn",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Dan Rogers",email:"contact@synapticchain.net",company:"Synaptic Chain Labs",country:"VN",source:"Facebook"},
+  {date:"07/7",name:"Thanh Thủy Phạm Nguyễn",email:"thuy.ma.pham@gmail.com",company:"Sài Gòn Zero Waste",country:"HCM City",source:"Facebook"},
+  {date:"07/7",name:"TuanAnh Vu",email:"vutuananh1248@gmail.com",company:"Dr SME",country:"HCM City",source:"Facebook"},
+  {date:"07/7",name:"Nguyễn Thị Hoa",email:"hoa.nguyenthi1989@gmail.com",company:"Trường TH-THCS-THPT Sao Việt",country:"Gia Lai",source:"Facebook"},
+  {date:"07/7",name:"Tran Minh Ton",email:"tranminhton@gmail.com",company:"Private Practice",country:"Vũng Tàu",source:"Facebook"},
+  {date:"07/7",name:"Đặng Minh Huy",email:"nitran219@gmail.com",company:"Đà Nẵng",country:"Da Nang",source:"Facebook"},
+  {date:"07/7",name:"Phan Tuấn",email:"tuandl.78@gmail.com",company:"Cement",country:"Ba Đồn",source:"Facebook"},
+  {date:"07/7",name:"Lam Giang",email:"buihoanglamgiang@gmail.com",company:"PISE",country:"Hanoi",source:"Facebook"},
+  {date:"07/7",name:"Truong Vu",email:"truongxnvu@gmail.com",company:"—",country:"Lâm Đồng",source:"Facebook"},
+  {date:"07/7",name:"Thảo Nâu",email:"thaonau38@gmail.com",company:"Xanh 50 Đồng",country:"HCM City",source:"Facebook"},
+];
+
+const tbody = document.getElementById('leadTableBody');
+leadsData.forEach((l, i) => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${i+1}</td>
+    <td>${l.date}</td>
+    <td><strong>${l.name}</strong></td>
+    <td style="font-size:12px;color:var(--text-muted)">${l.email}</td>
+    <td style="font-size:12px;color:var(--text-muted)">${l.company}</td>
+    <td>${l.country}</td>
+    <td><span class="badge ${l.source==='LinkedIn'?'badge-xanhduong':'badge-xanh'}">${l.source}</span></td>
+    <td><span class="badge badge-cam">Chưa LH</span></td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// ===== HELPER: format VND =====
+const fVND = v => v.toLocaleString('vi-VN') + '₫';
+
+// ===== CHARTS =====
+const g = { responsive: true, maintainAspectRatio: true,
+  plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 14, padding: 12 } } },
+  scales: { x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(51,65,85,0.3)' } }, y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(51,65,85,0.3)' }, beginAtZero: true } } };
+
+new Chart(document.getElementById('dailyLeadsChart'), { type: 'bar',
+  data: { labels: dateLabels, datasets: [{ label: 'Leads', data: leadsByDate, backgroundColor: 'rgba(56,189,248,0.6)', borderColor: '#38bdf8', borderWidth: 1, borderRadius: 4 }] },
+  options: { ...g, plugins: { ...g.plugins, datalabels: { anchor: 'end', align: 'end', color: '#94a3b8', font: { size: 10 } } } } });
+
+new Chart(document.getElementById('sourceChart'), { type: 'doughnut',
+  data: { labels: ['Facebook','LinkedIn (đã tắt)'], datasets: [{ data: [63,1], backgroundColor: ['rgba(56,189,248,0.7)','rgba(239,68,68,0.5)'], borderColor: ['#38bdf8','#ef4444'], borderWidth: 2 }] },
+  options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 12 }, padding: 16 } },
+      datalabels: { formatter: (v) => v+' ('+Math.round(v/64*100)+'%)', color: '#fff', font: { size: 13, weight: 'bold' } } } } });
+
+new Chart(document.getElementById('dailySpendChart'), { type: 'bar',
+  data: { labels: ['01/7','02/7','03/7','04/7','05/7','06/7','07/7','08/7'], datasets: [{ label: 'Chi Meta (₫)', data: spendByDate, backgroundColor: 'rgba(245,158,11,0.6)', borderColor: '#f59e0b', borderWidth: 1, borderRadius: 4 }] },
+  options: { ...g, scales: { ...g.scales, y: { ...g.scales.y, ticks: { ...g.scales.y.ticks, callback: fVND } } }, plugins: { ...g.plugins, datalabels: { anchor: 'end', align: 'end', color: '#94a3b8', font: { size: 9 }, formatter: fVND } } } });
+
+new Chart(document.getElementById('dailyCplChart'), { type: 'line',
+  data: { labels: ['04/7','05/7','06/7','07/7'], datasets: [
+    { label: 'Meta CPL (₫)', data: [0,21768,15098,8357], borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', fill: true, tension: 0.3, pointBackgroundColor: '#22c55e', pointRadius: 5 },
+    { label: 'Target ~63.750₫', data: [63750,63750,63750,63750], borderColor: '#ef4444', borderDash: [5,5], pointRadius: 0, borderWidth: 2 }] },
+  options: { ...g, scales: { ...g.scales, y: { ...g.scales.y, ticks: { ...g.scales.y.ticks, callback: fVND } } }, plugins: { ...g.plugins, datalabels: { display: false } } } });
+
+new Chart(document.getElementById('adLeadsChart'), { type: 'bar',
+  data: { labels: adNames, datasets: [{ label: 'Leads', data: adLeads, backgroundColor: adLeads.map((v,i)=>i===1?'rgba(239,68,68,0.6)':'rgba(56,189,248,0.6)'), borderColor: adLeads.map((v,i)=>i===1?'#ef4444':'#38bdf8'), borderWidth: 1, borderRadius: 4 }] },
+  options: { ...g, plugins: { ...g.plugins, datalabels: { anchor: 'end', align: 'end', color: '#94a3b8', font: { size: 12, weight: 'bold' } } } } });
+
+new Chart(document.getElementById('adSpendChart'), { type: 'bar',
+  data: { labels: adNames, datasets: [{ label: 'Chi (₫)', data: adSpend, backgroundColor: 'rgba(245,158,11,0.6)', borderColor: '#f59e0b', borderWidth: 1, borderRadius: 4 }] },
+  options: { ...g, scales: { ...g.scales, y: { ...g.scales.y, ticks: { ...g.scales.y.ticks, callback: fVND } } }, plugins: { ...g.plugins, datalabels: { anchor: 'end', align: 'end', color: '#94a3b8', font: { size: 10 }, formatter: fVND } } } });
+
+new Chart(document.getElementById('adCplChart'), { type: 'bar',
+  data: { labels: adNames, datasets: [{ label: 'CPL (₫)', data: adCpl, backgroundColor: ['rgba(34,197,94,0.6)','rgba(239,68,68,0.6)','rgba(34,197,94,0.6)','rgba(34,197,94,0.6)'], borderColor: ['#22c55e','#ef4444','#22c55e','#22c55e'], borderWidth: 1, borderRadius: 4 }] },
+  options: { ...g, scales: { ...g.scales, y: { ...g.scales.y, ticks: { ...g.scales.y.ticks, callback: fVND } } }, plugins: { ...g.plugins, datalabels: { anchor: 'end', align: 'end', color: '#94a3b8', font: { size: 10 }, formatter: fVND } } } });
+
+new Chart(document.getElementById('adImprChart'), { type: 'bar',
+  data: { labels: adNames, datasets: [
+    { label: 'Hiển Thị', data: adImpr, backgroundColor: 'rgba(59,130,246,0.5)', borderColor: '#3b82f6', borderWidth: 1, borderRadius: 4 },
+    { label: 'Tiếp Cận', data: adReach, backgroundColor: 'rgba(20,184,166,0.5)', borderColor: '#14b8a6', borderWidth: 1, borderRadius: 4 }] },
+  options: { ...g, plugins: { ...g.plugins, datalabels: { anchor: 'end', align: 'end', color: '#94a3b8', font: { size: 9 } } } } });
+
+new Chart(document.getElementById('targetChart'), { type: 'bar',
+  data: { labels: ['Đạt (Tuần 1)','Dự Phóng','Bảo Thủ','Mục Tiêu','Lạc Quan'],
+    datasets: [{ label: 'Leads', data: [64,496,272,381,394],
+      backgroundColor: ['rgba(56,189,248,0.6)','rgba(56,189,248,0.4)','rgba(239,68,68,0.5)','rgba(245,158,11,0.6)','rgba(34,197,94,0.5)'],
+      borderColor: ['#38bdf8','#38bdf8','#ef4444','#f59e0b','#22c55e'], borderWidth: 1, borderRadius: 4 }] },
+  options: { ...g, plugins: { ...g.plugins, datalabels: { anchor: 'end', align: 'end', color: '#94a3b8', font: { size: 11, weight: 'bold' } } } } });
+
+new Chart(document.getElementById('budgetChart'), { type: 'doughnut',
+  data: { labels: ['Meta - Đã dùng','Meta - Còn lại','LinkedIn - Đã dùng ($54.60)','LinkedIn - Còn lại ($65.40)'],
+    datasets: [{ data: [751813,21688187,1392300,1667700], backgroundColor: ['rgba(56,189,248,0.7)','rgba(56,189,248,0.15)','rgba(239,68,68,0.5)','rgba(59,130,246,0.2)'], borderColor: ['#38bdf8','#38bdf8','#ef4444','#3b82f6'], borderWidth: 2 }] },
+  options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 }, padding: 10 } },
+      datalabels: { formatter: (v,ctx) => { const t = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0); return (v/t*100).toFixed(1)+'%'; }, color: '#fff', font: { size: 10, weight: 'bold' } } } } });
+
+new Chart(document.getElementById('scenarioChart'), { type: 'bar',
+  data: { labels: ['Meta Leads','LinkedIn Leads','Tổng Leads'], datasets: [
+    { label: 'Bảo Thủ', data: [260,12,272], backgroundColor: 'rgba(239,68,68,0.5)', borderColor: '#ef4444', borderWidth: 1, borderRadius: 3 },
+    { label: 'Moderate ✅', data: [320,18,338], backgroundColor: 'rgba(245,158,11,0.5)', borderColor: '#f59e0b', borderWidth: 1, borderRadius: 3 },
+    { label: 'Lạc Quan', data: [370,24,394], backgroundColor: 'rgba(34,197,94,0.5)', borderColor: '#22c55e', borderWidth: 1, borderRadius: 3 },
+    { label: 'VN Pace (496)', data: [490,6,496], backgroundColor: 'rgba(56,189,248,0.4)', borderColor: '#38bdf8', borderWidth: 1, borderRadius: 3, borderDash: [3,3] }] },
+  options: { ...g, plugins: { ...g.plugins, datalabels: { display: false } } } });
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.querySelector(`.tab[onclick="switchTab('${name}')"]`).classList.add('active');
+  window.dispatchEvent(new Event('resize'));
+}
+</script>
+</body>
+</html>
