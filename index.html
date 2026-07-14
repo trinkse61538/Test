@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#071d2b">
-  <title>Net Zero Challenge — Plan vs Actual</title>
+  <title>Net Zero Challenge — Plan vs Actual & Ad Set Performance</title>
   <meta name="description" content="Automated Net Zero Challenge Plan vs Actual report combining Meta Ads, actual leads and the media plan.">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
@@ -80,6 +80,11 @@
     .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.grid-wide{display:grid;grid-template-columns:1.55fr 1fr;gap:16px}
     .card{min-width:0;padding:20px}.card h3{margin:0;font-size:16px}.desc{margin:6px 0 18px;color:var(--muted);font-size:12px;line-height:1.55}
     .chart-wrap{position:relative;height:340px}.chart-wrap.short{height:300px}
+    .table-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+    .table-tools input,.table-tools select{height:40px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);padding:0 12px}
+    .table-tools input{min-width:270px;flex:1}
+    .table-tools select{min-width:220px}
+    .table-count{margin-left:auto;color:var(--muted);font-size:12px;font-weight:800}
     .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}
     table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}th,td{padding:12px 13px;text-align:right;border-bottom:1px solid var(--line)}
     th{position:sticky;top:0;background:#eef5f3;color:#526970;font-size:11px;letter-spacing:.07em;text-transform:uppercase}
@@ -100,7 +105,7 @@
       <div>
         <div class="eyebrow"><i></i> Plan vs Actual · Automated</div>
         <h1>Net Zero Challenge</h1>
-        <p>Campaign performance measured against the approved media plan: actual spend, actual leads, Meta attribution, CPL efficiency, pacing and projected end-of-period outcome.</p>
+        <p>Campaign delivery measured against the approved media plan: actual spend, actual leads, Meta attribution, CPL efficiency, pacing and projected end-of-period outcome.</p>
       </div>
       <div class="hero-status">
         <strong>Data freshness</strong>
@@ -201,10 +206,38 @@
 
   <section class="section">
     <article class="card">
-      <h3>Campaign performance</h3><p class="desc">Campaign-level Meta performance. Actual Leads by campaign require a matching UTM Campaign field in the lead sheet.</p>
+      <h3>Ad Set performance</h3>
+      <p class="desc">Detailed delivery from <code>META_AD_LEVEL</code>, aggregated by Ad Set. Actual Leads cannot yet be assigned to individual Ad Sets because the lead sheet does not contain UTM Ad Set or Ad Set ID.</p>
+      <div class="table-tools">
+        <input id="adSetSearch" type="search" placeholder="Search Ad Set or Campaign…">
+        <select id="adSetCampaign">
+          <option value="">All campaigns</option>
+        </select>
+        <select id="adSetSort">
+          <option value="spend">Sort: Highest spend</option>
+          <option value="leads">Sort: Most Meta Leads</option>
+          <option value="cpl">Sort: Lowest CPL</option>
+          <option value="ctr">Sort: Highest Link CTR</option>
+        </select>
+        <span class="table-count" id="adSetCount">0 Ad Sets</span>
+      </div>
       <div class="table-wrap"><table>
-        <thead><tr><th>Campaign</th><th>Spend</th><th>Impressions</th><th>Link clicks</th><th>Meta leads</th><th>Actual Leads</th><th>Link CTR</th><th>CPL Actual</th></tr></thead>
-        <tbody id="campaignRows"><tr><td colspan="8">Loading campaign data…</td></tr></tbody>
+        <thead><tr>
+          <th>Ad Set</th>
+          <th>Campaign</th>
+          <th>Spend</th>
+          <th>Meta Leads</th>
+          <th>CPL Meta</th>
+          <th>Impressions</th>
+          <th>Link Clicks</th>
+          <th>Link CTR</th>
+          <th>CPC Link</th>
+          <th>CPM</th>
+          <th>LPV</th>
+          <th>Ads</th>
+          <th>Active Days</th>
+        </tr></thead>
+        <tbody id="adSetRows"><tr><td colspan="13">Loading Ad Set data…</td></tr></tbody>
       </table></div>
     </article>
   </section>
@@ -214,7 +247,7 @@
 
 <script>
 const REPORT_API_URL = String(window.N0C_REPORT_API_URL || '').trim();
-const state={data:null,charts:{},autoRefreshMs:15*60*1000};
+const state={data:null,charts:{},adSets:[],autoRefreshMs:15*60*1000};
 const el=id=>document.getElementById(id);
 
 function isoDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
@@ -297,7 +330,9 @@ function render(data){
   renderForecast(data,forecast);
   renderCharts(data);
   renderPlanTable(data);
-  renderCampaigns(data.campaigns||[]);
+  state.adSets=data.adSets||[];
+  populateAdSetCampaigns(state.adSets);
+  renderAdSets();
 }
 
 function computeForecast(data){
@@ -379,7 +414,72 @@ function renderPlanTable(data){
   ];
   el('planRows').innerHTML=metrics.map(m=>`<tr><td>${m.name}</td><td>${m.actual}</td><td>${m.plan}</td><td>${m.variance}</td><td>${m.att}</td><td><span class="status ${m.a.type}">${m.a.text}</span></td></tr>`).join('');
 }
-function renderCampaigns(campaigns){el('campaignRows').innerHTML=campaigns.slice(0,30).map(c=>`<tr><td class="campaign" title="${escapeHtml(c.name)}">${escapeHtml(c.name)}</td><td>${money(c.spend)}</td><td>${number(c.impressions)}</td><td>${number(c.linkClicks)}</td><td><span class="pill">${number(c.metaLeads)}</span></td><td>${number(c.crmLeads)}</td><td>${percent(c.ctr)}</td><td>${c.crmLeads?money(c.cplCrm):'—'}</td></tr>`).join('')||'<tr><td colspan="8">No campaign rows were found for this period.</td></tr>'}
+function populateAdSetCampaigns(adSets){
+  const select=el('adSetCampaign');
+  const current=select.value;
+  const campaigns=[...new Set(
+    adSets.map(item=>item.campaignName).filter(Boolean)
+  )].sort((a,b)=>a.localeCompare(b));
+
+  select.innerHTML='<option value="">All campaigns</option>'+
+    campaigns.map(name=>
+      `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`
+    ).join('');
+
+  if(campaigns.includes(current))select.value=current;
+}
+
+function renderAdSets(){
+  const query=(el('adSetSearch')?.value||'').trim().toLowerCase();
+  const campaign=el('adSetCampaign')?.value||'';
+  const sort=el('adSetSort')?.value||'spend';
+
+  let rows=[...state.adSets].filter(item=>{
+    const matchesCampaign=!campaign||
+      item.campaignName===campaign;
+    const haystack=`${item.name||''} ${item.campaignName||''}`.toLowerCase();
+    const matchesSearch=!query||haystack.includes(query);
+    return matchesCampaign&&matchesSearch;
+  });
+
+  rows.sort((a,b)=>{
+    if(sort==='leads')return (b.metaLeads||0)-(a.metaLeads||0)||
+      (b.spend||0)-(a.spend||0);
+    if(sort==='cpl'){
+      const av=a.metaLeads?a.cplMeta:Number.POSITIVE_INFINITY;
+      const bv=b.metaLeads?b.cplMeta:Number.POSITIVE_INFINITY;
+      return av-bv||(b.spend||0)-(a.spend||0);
+    }
+    if(sort==='ctr')return (b.linkCtr||0)-(a.linkCtr||0)||
+      (b.spend||0)-(a.spend||0);
+    return (b.spend||0)-(a.spend||0);
+  });
+
+  el('adSetCount').textContent=
+    `${number(rows.length)} of ${number(state.adSets.length)} Ad Sets`;
+
+  el('adSetRows').innerHTML=rows.length
+    ?rows.map(item=>`<tr>
+      <td class="campaign" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</td>
+      <td class="campaign" title="${escapeHtml(item.campaignName)}">${escapeHtml(item.campaignName)}</td>
+      <td>${money(item.spend)}</td>
+      <td><span class="pill">${number(item.metaLeads)}</span></td>
+      <td>${item.metaLeads?money(item.cplMeta):'—'}</td>
+      <td>${number(item.impressions)}</td>
+      <td>${number(item.linkClicks)}</td>
+      <td>${percent(item.linkCtr)}</td>
+      <td>${item.linkClicks?money(item.cpcLink):'—'}</td>
+      <td>${item.impressions?money(item.cpm):'—'}</td>
+      <td>${number(item.landingPageViews)}</td>
+      <td>${number(item.adsCount)}</td>
+      <td>${number(item.activeDays)}</td>
+    </tr>`).join('')
+    :'<tr><td colspan="13">No Ad Sets match the current filters.</td></tr>';
+}
+
+el('adSetSearch').addEventListener('input',renderAdSets);
+el('adSetCampaign').addEventListener('change',renderAdSets);
+el('adSetSort').addEventListener('change',renderAdSets);
 
 document.querySelectorAll('.preset').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.preset==='mtd')setMtd();else if(b.dataset.campaign)setCampaign();else setPreset(Number(b.dataset.days)||30);loadReport()}));
 el('refreshBtn').addEventListener('click',loadReport);el('fromDate').addEventListener('change',loadReport);el('toDate').addEventListener('change',loadReport);
