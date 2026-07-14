@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#071d2b">
-  <title>Net Zero Challenge — Plan vs Actual & Ad Set Performance</title>
+  <title>Net Zero Challenge — Total Ads Plan vs Actual</title>
   <meta name="description" content="Automated Net Zero Challenge Plan vs Actual report combining Meta Ads, actual leads and the media plan.">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
@@ -132,11 +132,12 @@
     </div>
     <div class="plan-cards">
       <article class="plan-card">
-        <div class="plan-top"><div class="metric-name">Media spend</div><span class="status" id="spendStatus">—</span></div>
+        <div class="plan-top"><div class="metric-name">Total Ads Spend</div><span class="status" id="spendStatus">—</span></div>
         <div class="compare-grid">
           <div class="compare-item"><span>Actual</span><strong id="actualSpend">—</strong></div>
           <div class="compare-item"><span>Plan</span><strong id="planSpend">—</strong></div>
         </div>
+        <div class="variance" id="spendBreakdown">Meta + LinkedIn breakdown</div>
         <div class="variance" id="spendVariance">—</div><div class="bar"><i id="spendBar"></i></div>
       </article>
       <article class="plan-card">
@@ -145,6 +146,7 @@
           <div class="compare-item"><span>Actual</span><strong id="actualLeads">—</strong></div>
           <div class="compare-item"><span>Plan</span><strong id="planLeads">—</strong></div>
         </div>
+        <div class="variance" id="leadBreakdown">Sheet Leads + LinkedIn lead</div>
         <div class="variance" id="leadVariance">—</div><div class="bar"><i id="leadBar"></i></div>
       </article>
       <article class="plan-card">
@@ -161,12 +163,14 @@
   <section class="section">
     <div class="section-head"><div><h2>Delivery snapshot</h2><p>Supporting paid-media and attribution metrics.</p></div></div>
     <div class="kpis">
-      <article class="mini-card" style="--wash:rgba(201,232,106,.23)"><div class="label">Meta leads</div><div class="value" id="metaLeads">—</div><div class="sub" id="metaGap">Meta-attributed versus actual leads</div></article>
-      <article class="mini-card" style="--wash:rgba(61,125,202,.12)"><div class="label">Impressions</div><div class="value" id="impressions">—</div><div class="sub">Total paid impressions</div></article>
-      <article class="mini-card"><div class="label">Reach</div><div class="value" id="reach">—</div><div class="sub">Summed campaign-level reach</div></article>
-      <article class="mini-card" style="--wash:rgba(43,183,169,.13)"><div class="label">Link clicks</div><div class="value" id="linkClicks">—</div><div class="sub">Outbound link actions</div></article>
-      <article class="mini-card" style="--wash:rgba(214,147,56,.13)"><div class="label">Link CTR</div><div class="value" id="linkCtr">—</div><div class="sub">Link clicks ÷ impressions</div></article>
-      <article class="mini-card" style="--wash:rgba(118,100,182,.13)"><div class="label">CPM</div><div class="value" id="cpm">—</div><div class="sub">Cost per 1,000 impressions</div></article>
+      <article class="mini-card" style="--wash:rgba(61,125,202,.14)"><div class="label">Meta Spend</div><div class="value" id="metaSpend">—</div><div class="sub">Automated from Meta Ads API</div></article>
+      <article class="mini-card" style="--wash:rgba(40,103,178,.16)"><div class="label">LinkedIn Spend</div><div class="value" id="linkedinSpend">—</div><div class="sub" id="linkedinSpendUsd">Hardcoded final snapshot</div></article>
+      <article class="mini-card" style="--wash:rgba(201,232,106,.23)"><div class="label">Meta Leads</div><div class="value" id="metaLeads">—</div><div class="sub">Meta-attributed leads</div></article>
+      <article class="mini-card" style="--wash:rgba(40,103,178,.14)"><div class="label">LinkedIn Leads</div><div class="value" id="linkedinLeads">—</div><div class="sub">Hardcoded final lead count</div></article>
+      <article class="mini-card" style="--wash:rgba(61,125,202,.12)"><div class="label">Meta Impressions</div><div class="value" id="impressions">—</div><div class="sub">LinkedIn impressions not supplied</div></article>
+      <article class="mini-card" style="--wash:rgba(43,183,169,.13)"><div class="label">Meta Link Clicks</div><div class="value" id="linkClicks">—</div><div class="sub">Meta outbound link actions</div></article>
+      <article class="mini-card" style="--wash:rgba(214,147,56,.13)"><div class="label">Meta Link CTR</div><div class="value" id="linkCtr">—</div><div class="sub">Meta link clicks ÷ impressions</div></article>
+      <article class="mini-card" style="--wash:rgba(118,100,182,.13)"><div class="label">Meta CPM</div><div class="value" id="cpm">—</div><div class="sub">Meta cost per 1,000 impressions</div></article>
     </div>
   </section>
 
@@ -200,6 +204,18 @@
       <div class="table-wrap"><table>
         <thead><tr><th>Metric</th><th>Actual</th><th>Plan / Target</th><th>Variance</th><th>Attainment</th><th>Assessment</th></tr></thead>
         <tbody id="planRows"></tbody>
+      </table></div>
+    </article>
+  </section>
+
+  <section class="section">
+    <article class="card">
+      <h3>LinkedIn Ads — final hardcoded snapshot</h3>
+      <p class="desc">The campaign has stopped. These values are fixed from the LinkedIn Campaign Manager screenshot and are included in Total Ads Spend when the selected date range contains 14 Jul 2026.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>LinkedIn Campaign</th><th>Spend USD</th><th>Spend VND</th></tr></thead>
+        <tbody id="linkedinCampaignRows"><tr><td colspan="3">Loading LinkedIn snapshot…</td></tr></tbody>
+        <tfoot><tr><th>Total</th><th id="linkedinTotalUsd">—</th><th id="linkedinTotalVnd">—</th></tr></tfoot>
       </table></div>
     </article>
   </section>
@@ -307,7 +323,13 @@ function render(data){
   const cplA=assessment(cplActual,s.targetCpl,true);
 
   el('actualSpend').textContent=money(s.spend);el('planSpend').textContent=money(s.plannedSpend);
+  el('spendBreakdown').innerHTML=
+    `<b>${money(s.metaSpend)}</b> Meta + `+
+    `<b>${money(s.linkedinSpend)}</b> LinkedIn`;
   el('actualLeads').textContent=number(actualLeads);el('planLeads').textContent=number(s.plannedLeads,1);
+  el('leadBreakdown').innerHTML=
+    `<b>${number(s.sheetActualLeads)}</b> Sheet Leads + `+
+    `<b>${number(s.linkedinLeads)}</b> LinkedIn lead`;
   el('actualCpl').textContent=money(cplActual);el('targetCpl').textContent=money(s.targetCpl);
   el('spendVariance').innerHTML=varianceText(s.spend,s.plannedSpend,money,false);
   el('leadVariance').innerHTML=varianceText(actualLeads,s.plannedLeads,v=>number(v,1),false);
@@ -315,10 +337,17 @@ function render(data){
   statusNode('spendStatus',spendA.text,spendA.type);statusNode('leadStatus',leadA.text,leadA.type);statusNode('cplStatus',cplA.text,cplA.type);
   el('spendBar').style.width=clamp(s.spendProgress);el('leadBar').style.width=clamp(s.leadProgress);el('cplBar').style.width=clamp(safeDiv(s.targetCpl,cplActual||s.targetCpl));
 
-  el('metaLeads').textContent=number(s.metaLeads);el('impressions').textContent=number(s.impressions);el('reach').textContent=number(s.reach);
-  el('linkClicks').textContent=number(s.linkClicks);el('linkCtr').textContent=percent(s.linkCtr);el('cpm').textContent=money(s.cpm);
-  const gap=Number(s.metaLeads)-actualLeads;
-  el('metaGap').textContent=`${signedNumber(gap)} versus Actual Leads`;
+  el('metaSpend').textContent=money(s.metaSpend);
+  el('linkedinSpend').textContent=money(s.linkedinSpend);
+  el('linkedinSpendUsd').textContent=
+    `$${number(s.linkedinSpendUsd,2)} × `+
+    `${number(s.linkedinFxVndPerUsd)} VND/USD`;
+  el('metaLeads').textContent=number(s.metaLeads);
+  el('linkedinLeads').textContent=number(s.linkedinLeads);
+  el('impressions').textContent=number(s.impressions);
+  el('linkClicks').textContent=number(s.linkClicks);
+  el('linkCtr').textContent=percent(s.linkCtr);
+  el('cpm').textContent=money(s.cpm);
 
   el('freshness').textContent=data.sourceUpdatedAt?`Meta synced ${dateTime(data.sourceUpdatedAt)}`:`Report generated ${dateTime(data.generatedAt)}`;
   el('generatedAt').textContent=`Generated ${dateTime(data.generatedAt)} · ${data.range.from} to ${data.range.to} · cache ${data.cache}`;
@@ -330,6 +359,7 @@ function render(data){
   renderForecast(data,forecast);
   renderCharts(data);
   renderPlanTable(data);
+  renderLinkedInSnapshot(data.platforms?.linkedin);
   state.adSets=data.adSets||[];
   populateAdSetCampaigns(state.adSets);
   renderAdSets();
@@ -380,7 +410,10 @@ function compactMoney(v){const n=Number(v)||0;if(Math.abs(n)>=1e9)return`${(n/1e
 function renderCharts(data){
   if(!window.Chart){showNotice('Chart.js could not load. Check your network or CDN access.');return}chartDefaults();
   const rows=data.daily||[],labels=rows.map(r=>shortDate(r.date));
-  const actualSpend=rows.map(r=>Number(r.spend)||0),planSpend=rows.map(r=>Number(r.plannedSpend)||0);
+  const actualSpend=rows.map(r=>Number(r.spend)||0),
+    metaSpend=rows.map(r=>Number(r.metaSpend??r.spend)||0),
+    linkedinSpend=rows.map(r=>Number(r.linkedinSpend)||0),
+    planSpend=rows.map(r=>Number(r.plannedSpend)||0);
   const actualLeads=rows.map(actualLead),planLeads=rows.map(r=>Number(r.plannedLeads)||0);
 
   destroy('cumSpend');state.charts.cumSpend=new Chart(el('cumSpendChart'),{type:'line',data:{labels,datasets:[
@@ -394,11 +427,12 @@ function renderCharts(data){
   ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}});
 
   destroy('daily');state.charts.daily=new Chart(el('dailyChart'),{data:{labels,datasets:[
-    {type:'bar',label:'Actual spend',data:actualSpend,yAxisID:'money',backgroundColor:'rgba(57,121,200,.25)',borderColor:'#3979c8',borderWidth:1,borderRadius:4},
+    {type:'bar',label:'Meta spend',data:metaSpend,yAxisID:'money',stack:'actual',backgroundColor:'rgba(57,121,200,.55)',borderColor:'#3979c8',borderWidth:1,borderRadius:4},
+    {type:'bar',label:'LinkedIn spend',data:linkedinSpend,yAxisID:'money',stack:'actual',backgroundColor:'rgba(40,103,178,.88)',borderColor:'#2867b2',borderWidth:1,borderRadius:4},
     {type:'line',label:'Planned spend',data:planSpend,yAxisID:'money',borderColor:'#d48c2d',backgroundColor:'#d48c2d',borderDash:[6,4],borderWidth:2,pointRadius:0,tension:.22},
     {type:'line',label:'Actual Leads',data:actualLeads,yAxisID:'leads',borderColor:'#168c66',backgroundColor:'#168c66',borderWidth:3,pointRadius:2,tension:.25},
     {type:'line',label:'Planned Leads',data:planLeads,yAxisID:'leads',borderColor:'#7664b6',backgroundColor:'#7664b6',borderWidth:2,borderDash:[5,4],pointRadius:0,tension:.25}
-  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom'}},scales:{money:{position:'left',beginAtZero:true,ticks:{callback:compactMoney}},leads:{position:'right',beginAtZero:true,grid:{drawOnChartArea:false}}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom'}},scales:{money:{position:'left',beginAtZero:true,stacked:true,ticks:{callback:compactMoney}},leads:{position:'right',beginAtZero:true,grid:{drawOnChartArea:false}}}}});
 
   renderDonut('source','sourceChart',data.leads?.bySource||[]);
 }
@@ -414,6 +448,25 @@ function renderPlanTable(data){
   ];
   el('planRows').innerHTML=metrics.map(m=>`<tr><td>${m.name}</td><td>${m.actual}</td><td>${m.plan}</td><td>${m.variance}</td><td>${m.att}</td><td><span class="status ${m.a.type}">${m.a.text}</span></td></tr>`).join('');
 }
+function renderLinkedInSnapshot(linkedin){
+  const data=linkedin||{};
+  const campaigns=data.campaigns||[];
+  const fx=Number(data.fxVndPerUsd)||0;
+
+  el('linkedinCampaignRows').innerHTML=campaigns.length
+    ?campaigns.map(item=>`<tr>
+      <td>${escapeHtml(item.name)}</td>
+      <td>$${number(item.spendUsd,2)}</td>
+      <td>${money((Number(item.spendUsd)||0)*fx)}</td>
+    </tr>`).join('')
+    :'<tr><td colspan="3">LinkedIn snapshot is outside the selected date range.</td></tr>';
+
+  el('linkedinTotalUsd').textContent=
+    data.included?`$${number(data.spendUsd,2)}`:'—';
+  el('linkedinTotalVnd').textContent=
+    data.included?money(data.spendVnd):'—';
+}
+
 function populateAdSetCampaigns(adSets){
   const select=el('adSetCampaign');
   const current=select.value;
