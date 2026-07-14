@@ -1,664 +1,627 @@
-<!DOCTYPE html>
-<html lang="vi">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AnfinX Facebook Ads Target Audience — 3 AUM</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#071d2b">
+  <title>Net Zero Challenge — Campaign Performance</title>
+  <meta name="description" content="Automated Net Zero Challenge performance report combining Meta Ads, CRM leads and campaign plan data.">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
   <style>
-    :root {
-      --bg: #07111f;
-      --card: rgba(255,255,255,.075);
-      --line: rgba(255,255,255,.16);
-      --text: #eef5ff;
-      --muted: #aebed3;
-      --soft: #d9e6f7;
-      --accent: #42d392;
-      --accent-2: #4ea3ff;
-      --accent-3: #ffca5f;
-      --danger: #ff7b7b;
-      --radius: 24px;
-      --shadow: 0 24px 70px rgba(0,0,0,.32);
+    :root{
+      --ink:#0b1f2a;
+      --muted:#647985;
+      --line:#dce7e7;
+      --paper:#f4f8f7;
+      --card:#ffffff;
+      --deep:#071d2b;
+      --green:#1e9b72;
+      --lime:#c9e86a;
+      --teal:#2bb7a9;
+      --blue:#3d7dca;
+      --amber:#d69338;
+      --red:#c95454;
+      --shadow:0 16px 42px rgba(7,29,43,.08);
+      --radius:20px;
     }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--ink);
       background:
-        radial-gradient(circle at 15% 5%, rgba(78,163,255,.32), transparent 32%),
-        radial-gradient(circle at 85% 12%, rgba(66,211,146,.22), transparent 34%),
-        radial-gradient(circle at 50% 95%, rgba(255,202,95,.16), transparent 35%),
-        var(--bg);
-      color: var(--text);
-      line-height: 1.55;
+        radial-gradient(circle at 8% 0%,rgba(43,183,169,.11),transparent 29rem),
+        radial-gradient(circle at 96% 7%,rgba(201,232,106,.15),transparent 26rem),
+        var(--paper);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     }
-
-    .page {
-      width: min(1180px, calc(100% - 36px));
-      margin: 0 auto;
-      padding: 42px 0 64px;
+    button,input{font:inherit}
+    .shell{max-width:1480px;margin:auto;padding:24px}
+    .hero{
+      overflow:hidden;
+      position:relative;
+      padding:32px;
+      border-radius:28px;
+      color:#fff;
+      background:
+        linear-gradient(120deg,rgba(7,29,43,.98),rgba(10,58,64,.94)),
+        var(--deep);
+      box-shadow:0 24px 70px rgba(7,29,43,.2);
     }
-
-    .hero {
-      position: relative;
-      overflow: hidden;
-      padding: 38px;
-      border: 1px solid var(--line);
-      border-radius: 34px;
-      background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.045));
-      box-shadow: var(--shadow);
+    .hero:after{
+      content:"";
+      position:absolute;
+      width:360px;height:360px;border-radius:50%;
+      right:-100px;top:-170px;
+      background:radial-gradient(circle,rgba(201,232,106,.34),transparent 66%);
     }
-
-    .hero:after {
-      content: "";
-      position: absolute;
-      width: 360px;
-      height: 360px;
-      border-radius: 999px;
-      background: radial-gradient(circle, rgba(66,211,146,.22), transparent 62%);
-      right: -110px;
-      top: -145px;
+    .hero-grid{
+      position:relative;z-index:1;
+      display:grid;grid-template-columns:1fr auto;gap:28px;align-items:end;
     }
-
-    .eyebrow {
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      padding: 8px 12px;
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 999px;
-      background: rgba(255,255,255,.08);
-      color: var(--soft);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
+    .eyebrow{
+      display:inline-flex;gap:9px;align-items:center;
+      padding:7px 11px;border:1px solid rgba(255,255,255,.19);
+      border-radius:999px;background:rgba(255,255,255,.07);
+      font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
     }
-
-    h1 {
-      position: relative;
-      z-index: 1;
-      max-width: 900px;
-      margin: 20px 0 12px;
-      font-size: clamp(34px, 5vw, 64px);
-      line-height: .98;
-      letter-spacing: -.06em;
+    .eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 5px rgba(201,232,106,.12)}
+    h1{font-size:clamp(2rem,4vw,4rem);line-height:1.04;margin:18px 0 12px;letter-spacing:-.045em}
+    .hero p{max-width:790px;color:#c9d9dd;line-height:1.7;margin:0}
+    .hero-status{text-align:right;min-width:230px}
+    .hero-status strong{display:block;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:#91aaaF}
+    .hero-status span{display:block;font-weight:800;font-size:15px;margin-top:8px}
+    .toolbar{
+      margin-top:18px;
+      padding:14px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:17px;
+      display:flex;gap:12px;align-items:end;flex-wrap:wrap;
     }
-
-    .hero p {
-      position: relative;
-      z-index: 1;
-      max-width: 880px;
-      margin: 0;
-      color: var(--muted);
-      font-size: 18px;
+    .field{display:grid;gap:6px}
+    .field label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#a9bdc3;font-weight:800}
+    .field input{
+      min-height:42px;border:1px solid rgba(255,255,255,.16);border-radius:12px;
+      color:#fff;background:rgba(255,255,255,.08);padding:0 12px;color-scheme:dark;
     }
-
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-top: 26px;
-      position: relative;
-      z-index: 1;
+    .preset,.refresh{
+      min-height:42px;border:0;border-radius:12px;padding:0 15px;cursor:pointer;font-weight:800;
     }
-
-    .meta-card {
-      padding: 18px;
-      border-radius: 20px;
-      background: rgba(255,255,255,.075);
-      border: 1px solid rgba(255,255,255,.13);
+    .preset{color:#d7e6e8;background:rgba(255,255,255,.09)}
+    .preset:hover{background:rgba(255,255,255,.16)}
+    .refresh{margin-left:auto;color:#092128;background:var(--lime)}
+    .refresh:disabled{opacity:.55;cursor:wait}
+    .notice{
+      display:none;margin-top:18px;padding:13px 16px;border-radius:14px;
+      background:#fff0dd;border:1px solid #f0cf9e;color:#704714;line-height:1.55;
     }
-
-    .meta-card b {
-      display: block;
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: .05em;
+    .notice.show{display:block}
+    .section{margin-top:24px}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:12px}
+    .section-head h2{margin:0;font-size:20px;letter-spacing:-.02em}
+    .section-head p{margin:5px 0 0;color:var(--muted);font-size:13px}
+    .kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+    .kpi{
+      min-height:150px;padding:18px;border:1px solid rgba(11,31,42,.07);
+      background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+      position:relative;overflow:hidden;
     }
-
-    .meta-card span {
-      font-size: 16px;
-      font-weight: 750;
+    .kpi:after{
+      content:"";position:absolute;width:100px;height:100px;border-radius:50%;
+      right:-35px;top:-42px;background:var(--wash,rgba(43,183,169,.11));
     }
-
-    .section-title {
-      margin: 42px 0 18px;
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 16px;
+    .kpi .label{color:var(--muted);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+    .kpi .value{margin-top:17px;font-size:clamp(1.5rem,2.5vw,2.35rem);font-weight:900;letter-spacing:-.05em}
+    .kpi .sub{margin-top:12px;color:var(--muted);font-size:12px;line-height:1.45}
+    .progress{height:7px;margin-top:13px;border-radius:999px;background:#e9f0ef;overflow:hidden}
+    .progress span{display:block;height:100%;width:0;border-radius:inherit;background:var(--green)}
+    .grid-2{display:grid;grid-template-columns:1.55fr 1fr;gap:16px}
+    .grid-even{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .card{
+      min-width:0;padding:20px;border:1px solid rgba(11,31,42,.07);
+      background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
     }
-
-    .section-title h2 {
-      margin: 0;
-      font-size: clamp(26px, 3vw, 38px);
-      letter-spacing: -.04em;
+    .card h3{margin:0;font-size:16px}
+    .card .desc{margin:6px 0 18px;color:var(--muted);font-size:12px}
+    .chart-wrap{position:relative;height:330px}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}
+    table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
+    th,td{padding:12px 13px;text-align:right;border-bottom:1px solid var(--line)}
+    th{position:sticky;top:0;background:#eef5f3;color:#536a72;font-size:11px;text-transform:uppercase;letter-spacing:.07em}
+    th:first-child,td:first-child{text-align:left}
+    tr:last-child td{border-bottom:0}
+    .campaign{max-width:360px;overflow:hidden;text-overflow:ellipsis}
+    .pill{
+      display:inline-flex;padding:5px 8px;border-radius:999px;
+      background:#eaf6f1;color:#247456;font-size:11px;font-weight:800;
     }
-
-    .section-title p {
-      margin: 0;
-      color: var(--muted);
-      max-width: 560px;
+    .quality{display:flex;gap:8px;flex-wrap:wrap}
+    .quality span{font-size:12px;padding:7px 10px;background:#eef4f4;border-radius:999px;color:#4c6871}
+    .footer{
+      padding:30px 0 12px;display:flex;justify-content:space-between;gap:16px;
+      color:var(--muted);font-size:12px;line-height:1.6;
     }
-
-    .aum-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
+    .skeleton{
+      color:transparent!important;border-radius:8px;
+      background:linear-gradient(90deg,#edf3f2,#f8fbfa,#edf3f2);
+      background-size:220% 100%;animation:pulse 1.2s infinite;
     }
-
-    .aum-card {
-      border-radius: var(--radius);
-      background: var(--card);
-      border: 1px solid var(--line);
-      overflow: hidden;
-      box-shadow: 0 18px 50px rgba(0,0,0,.20);
+    @keyframes pulse{to{background-position:-220% 0}}
+    @media(max-width:1180px){
+      .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .grid-2{grid-template-columns:1fr}
     }
-
-    .aum-top {
-      padding: 22px 22px 18px;
-      min-height: 184px;
-      background: linear-gradient(135deg, rgba(255,255,255,.115), rgba(255,255,255,.035));
-      border-bottom: 1px solid rgba(255,255,255,.12);
+    @media(max-width:720px){
+      .shell{padding:12px}.hero{padding:22px;border-radius:22px}
+      .hero-grid{grid-template-columns:1fr}.hero-status{text-align:left}
+      .toolbar{align-items:stretch}.field{width:calc(50% - 6px)}.field input{width:100%}
+      .refresh{margin-left:0;width:100%}
+      .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .grid-even{grid-template-columns:1fr}
+      .chart-wrap{height:280px}.footer{display:block}
     }
-
-    .aum-index {
-      width: 46px;
-      height: 46px;
-      display: grid;
-      place-items: center;
-      border-radius: 15px;
-      font-weight: 900;
-      color: #06111f;
-      margin-bottom: 16px;
-    }
-
-    .aum-card:nth-child(1) .aum-index { background: var(--accent-2); }
-    .aum-card:nth-child(2) .aum-index { background: var(--accent-3); }
-    .aum-card:nth-child(3) .aum-index { background: var(--accent); }
-
-    .aum-top h3 {
-      margin: 0 0 8px;
-      font-size: 24px;
-      line-height: 1.08;
-      letter-spacing: -.035em;
-    }
-
-    .aum-top p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 15px;
-    }
-
-    .aum-body {
-      padding: 22px;
-    }
-
-    .block {
-      padding: 16px;
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 18px;
-      background: rgba(255,255,255,.045);
-      margin-bottom: 14px;
-    }
-
-    .block h4 {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0 0 10px;
-      font-size: 14px;
-      text-transform: uppercase;
-      color: var(--soft);
-      letter-spacing: .06em;
-    }
-
-    .block p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14.5px;
-    }
-
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .chip {
-      padding: 7px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.13);
-      color: var(--soft);
-      font-size: 13px;
-      font-weight: 650;
-      white-space: nowrap;
-    }
-
-    .headline-box {
-      display: grid;
-      gap: 10px;
-      padding: 16px;
-      border-radius: 18px;
-      background: rgba(66,211,146,.09);
-      border: 1px solid rgba(66,211,146,.25);
-    }
-
-    .headline-box strong {
-      display: block;
-      font-size: 17px;
-      line-height: 1.25;
-    }
-
-    .headline-box span {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.055);
-      box-shadow: 0 18px 50px rgba(0,0,0,.18);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 880px;
-    }
-
-    th, td {
-      padding: 17px 18px;
-      text-align: left;
-      vertical-align: top;
-      border-bottom: 1px solid rgba(255,255,255,.11);
-    }
-
-    th {
-      color: var(--soft);
-      font-size: 13px;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      background: rgba(255,255,255,.06);
-    }
-
-    td {
-      color: var(--muted);
-      font-size: 14.5px;
-    }
-
-    tr:last-child td { border-bottom: none; }
-
-    td b { color: var(--text); }
-
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-
-    .panel {
-      padding: 24px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.065);
-    }
-
-    .panel h3 {
-      margin: 0 0 12px;
-      font-size: 23px;
-      letter-spacing: -.025em;
-    }
-
-    .panel ul {
-      margin: 0;
-      padding-left: 20px;
-      color: var(--muted);
-    }
-
-    .panel li { margin: 8px 0; }
-
-    .warning {
-      border-color: rgba(255,202,95,.35);
-      background: rgba(255,202,95,.075);
-    }
-
-    .danger {
-      border-color: rgba(255,123,123,.33);
-      background: rgba(255,123,123,.07);
-    }
-
-    .footer {
-      margin-top: 36px;
-      padding: 22px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: rgba(255,255,255,.045);
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    @media (max-width: 980px) {
-      .meta-grid, .aum-grid, .two-col {
-        grid-template-columns: 1fr;
-      }
-
-      .hero { padding: 28px; }
-
-      .section-title {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-    }
-
-    @media print {
-      body {
-        background: white;
-        color: #101828;
-      }
-      .hero, .aum-card, .panel, .table-wrap, .footer {
-        box-shadow: none;
-        background: #fff;
-        border-color: #d0d5dd;
-      }
-      .hero p, .block p, td, .panel li, .footer, .aum-top p {
-        color: #475467;
-      }
-      .chip {
-        color: #344054;
-        border-color: #d0d5dd;
-        background: #f2f4f7;
-      }
-      h1, h2, h3, th, td b, .headline-box strong {
-        color: #101828;
-      }
-    }
+    @media(max-width:430px){.kpis{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <main class="page">
+  <main class="shell">
     <section class="hero">
-      <div class="eyebrow">AnfinX · Facebook Ads Targeting Plan</div>
-      <h1>Khung 3 AUM cho chiến dịch mở tài khoản AnfinX</h1>
-      <p>
-        Bản phân nhóm đối tượng để chạy Facebook Ads cho bài viết hướng dẫn mở tài khoản giao dịch hàng hóa phái sinh trên AnfinX.
-        Cấu trúc này phù hợp để chia thành 3 ad set riêng: nhóm người mới, nhóm trader có kinh nghiệm và nhóm retargeting đã biết AnfinX.
-      </p>
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow"><i></i> Automated performance report</div>
+          <h1>Net Zero Challenge</h1>
+          <p>One reporting layer connecting Meta Ads delivery, CRM lead volume and campaign plan progress. The dashboard contains aggregated metrics only and does not expose personal lead information.</p>
+        </div>
+        <div class="hero-status">
+          <strong>Data freshness</strong>
+          <span id="freshness">Waiting for data…</span>
+        </div>
+      </div>
 
-      <div class="meta-grid">
-        <div class="meta-card">
-          <b>Mục tiêu chiến dịch</b>
-          <span>Mở tài khoản / tải app</span>
+      <div class="toolbar">
+        <div class="field">
+          <label for="fromDate">From</label>
+          <input type="date" id="fromDate">
         </div>
-        <div class="meta-card">
-          <b>Thị trường</b>
-          <span>Việt Nam</span>
+        <div class="field">
+          <label for="toDate">To</label>
+          <input type="date" id="toDate">
         </div>
-        <div class="meta-card">
-          <b>Độ tuổi đề xuất</b>
-          <span>24–50</span>
-        </div>
-        <div class="meta-card">
-          <b>Cấu trúc</b>
-          <span>3 ad set / 3 AUM</span>
-        </div>
+        <button class="preset" data-days="7">7 days</button>
+        <button class="preset" data-days="30">30 days</button>
+        <button class="preset" data-days="90">90 days</button>
+        <button class="refresh" id="refreshBtn">Refresh report</button>
       </div>
     </section>
 
-    <div class="section-title">
-      <h2>Phân nhóm đối tượng</h2>
-      <p>Mỗi AUM gồm chân dung người dùng, động lực, góc thông điệp và nhóm targeting để nhập vào Meta Ads Manager.</p>
-    </div>
+    <div class="notice" id="notice"></div>
 
-    <section class="aum-grid">
-      <article class="aum-card">
-        <div class="aum-top">
-          <div class="aum-index">01</div>
-          <h3>Người mới quan tâm đầu tư</h3>
-          <p>Nhóm có quan tâm đến đầu tư, tài chính cá nhân, chứng khoán, vàng, kinh tế nhưng chưa quen với hàng hóa phái sinh.</p>
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>Executive snapshot</h2>
+          <p>Paid media delivery, actual lead intake and plan attainment.</p>
         </div>
-        <div class="aum-body">
-          <div class="block">
-            <h4>Chân dung đối tượng</h4>
-            <p>Người dùng Việt Nam đang theo dõi nội dung về đầu tư, tài chính cá nhân, chứng khoán, vàng, kinh tế hoặc fintech.</p>
-          </div>
-          <div class="block">
-            <h4>Động lực người dùng</h4>
-            <p>Họ muốn biết bắt đầu từ đâu, mở tài khoản có phức tạp không, có cần ra quầy không và có thể làm online trên điện thoại không.</p>
-          </div>
-          <div class="block">
-            <h4>Targeting Suggestions</h4>
-            <div class="chips">
-              <span class="chip">Investing</span>
-              <span class="chip">Personal finance</span>
-              <span class="chip">Stock market</span>
-              <span class="chip">Economy</span>
-              <span class="chip">Gold price</span>
-              <span class="chip">Fintech</span>
-              <span class="chip">Financial news</span>
-              <span class="chip">TradingView</span>
-              <span class="chip">CafeF</span>
-              <span class="chip">Vietstock</span>
-              <span class="chip">VnEconomy</span>
-              <span class="chip">Online banking</span>
-            </div>
-          </div>
-          <div class="headline-box">
-            <strong>Góc thông điệp: Mở tài khoản hàng hóa phái sinh dễ hơn bạn nghĩ.</strong>
-            <span>Headline: Mở tài khoản AnfinX online · CTA: Xem hướng dẫn 10 bước</span>
-          </div>
-        </div>
-      </article>
-
-      <article class="aum-card">
-        <div class="aum-top">
-          <div class="aum-index">02</div>
-          <h3>Trader / nhà đầu tư có kinh nghiệm</h3>
-          <p>Nhóm đã quen với trading, biểu đồ, phân tích kỹ thuật, chứng khoán, crypto, forex hoặc thị trường quốc tế.</p>
-        </div>
-        <div class="aum-body">
-          <div class="block">
-            <h4>Chân dung đối tượng</h4>
-            <p>Người dùng có intent cao hơn vì đã hiểu biến động giá, biểu đồ, thị trường và hành vi giao dịch trên app.</p>
-          </div>
-          <div class="block">
-            <h4>Động lực người dùng</h4>
-            <p>Họ muốn khám phá thêm thị trường mới, sản phẩm mới hoặc các nhóm hàng hóa như vàng, dầu, cà phê, bạc, bạch kim.</p>
-          </div>
-          <div class="block">
-            <h4>Targeting Suggestions</h4>
-            <div class="chips">
-              <span class="chip">Trading</span>
-              <span class="chip">Technical analysis</span>
-              <span class="chip">Candlestick chart</span>
-              <span class="chip">Futures contract</span>
-              <span class="chip">Forex</span>
-              <span class="chip">Cryptocurrency</span>
-              <span class="chip">Bitcoin</span>
-              <span class="chip">Binance</span>
-              <span class="chip">MetaTrader</span>
-              <span class="chip">TradingView</span>
-              <span class="chip">Commodity market</span>
-              <span class="chip">Crude oil</span>
-              <span class="chip">Silver</span>
-              <span class="chip">Platinum</span>
-              <span class="chip">Gold</span>
-              <span class="chip">Coffee</span>
-            </div>
-          </div>
-          <div class="headline-box">
-            <strong>Góc thông điệp: Đã quen trading? Khám phá hàng hóa phái sinh trên AnfinX.</strong>
-            <span>Headline: Bắt đầu với hàng hóa phái sinh · CTA: Tải AnfinX ngay</span>
-          </div>
-        </div>
-      </article>
-
-      <article class="aum-card">
-        <div class="aum-top">
-          <div class="aum-index">03</div>
-          <h3>Retargeting người đã biết AnfinX</h3>
-          <p>Nhóm đã từng tương tác, vào web, tải app hoặc bắt đầu đăng ký nhưng chưa hoàn tất tài khoản / eKYC / giao dịch đầu tiên.</p>
-        </div>
-        <div class="aum-body">
-          <div class="block">
-            <h4>Chân dung đối tượng</h4>
-            <p>Người đã vào landing page, tương tác Facebook/Instagram, nhắn tin, xem video, mở app hoặc có event nhưng chưa hoàn tất bước chuyển đổi chính.</p>
-          </div>
-          <div class="block">
-            <h4>Động lực người dùng</h4>
-            <p>Họ có thể đang quan tâm nhưng bị kẹt ở bước eKYC, quét NFC, xác thực khuôn mặt, ký hợp đồng hoặc chờ kích hoạt tài khoản.</p>
-          </div>
-          <div class="block">
-            <h4>Targeting Suggestions</h4>
-            <div class="chips">
-              <span class="chip">Website visitors 30D</span>
-              <span class="chip">Website visitors 90D</span>
-              <span class="chip">Landing page visitors 180D</span>
-              <span class="chip">Facebook Page engagement 365D</span>
-              <span class="chip">Instagram engagement 365D</span>
-              <span class="chip">Messenger engagement 365D</span>
-              <span class="chip">Video viewers 50% 180D</span>
-              <span class="chip">Video viewers 75% 180D</span>
-              <span class="chip">first_engagement</span>
-              <span class="chip">first_open</span>
-              <span class="chip">Started eKYC</span>
-              <span class="chip">App install no trade</span>
-            </div>
-          </div>
-          <div class="headline-box">
-            <strong>Góc thông điệp: Bạn chỉ còn vài bước để hoàn tất tài khoản AnfinX.</strong>
-            <span>Headline: Hoàn tất tài khoản AnfinX hôm nay · CTA: Inbox để được hỗ trợ</span>
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <div class="section-title">
-      <h2>Tóm tắt setup ad set</h2>
-      <p>Bảng này có thể dùng như checklist nhanh khi setup trong Meta Ads Manager.</p>
-    </div>
-
-    <section class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Ad set</th>
-            <th>Loại đối tượng</th>
-            <th>Vị trí / độ tuổi</th>
-            <th>Targeting Suggestions</th>
-            <th>Loại trừ</th>
-            <th>Ưu tiên ngân sách</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><b>AUM 1 — Người mới quan tâm đầu tư</b></td>
-            <td>Cold audience</td>
-            <td>Việt Nam · 24–50 · Tất cả giới tính</td>
-            <td>Investing, personal finance, stock market, gold price, fintech, economy, financial news, CafeF, Vietstock, TradingView.</td>
-            <td>Người đã có tài khoản giao dịch hàng hóa, đã hoàn tất eKYC, đã trade_filled, nhân sự nội bộ.</td>
-            <td>20–30%</td>
-          </tr>
-          <tr>
-            <td><b>AUM 2 — Trader / nhà đầu tư có kinh nghiệm</b></td>
-            <td>Cold nhưng intent cao hơn</td>
-            <td>Việt Nam · 24–50 · Tất cả giới tính</td>
-            <td>Trading, technical analysis, futures, forex, cryptocurrency, Bitcoin, Binance, MetaTrader, TradingView, commodity market, crude oil, silver, platinum.</td>
-            <td>Người đã trade_filled, đã mở tài khoản thành công, khách hàng hiện hữu, nhân sự nội bộ.</td>
-            <td>30–40%</td>
-          </tr>
-          <tr>
-            <td><b>AUM 3 — Retargeting người đã tương tác</b></td>
-            <td>Warm audience</td>
-            <td>Việt Nam · 24–55 · Tất cả giới tính</td>
-            <td>Website visitors, landing page visitors, Facebook/Instagram engagers, Messenger leads, video viewers, app events, first_engagement, started eKYC.</td>
-            <td>Người đã hoàn tất eKYC, đã kích hoạt tài khoản giao dịch, đã trade_filled, khách hàng hiện hữu.</td>
-            <td>40–50%</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <div class="section-title">
-      <h2>Ghi chú vận hành</h2>
-      <p>Một vài điểm cần lưu ý trước khi launch chiến dịch.</p>
-    </div>
-
-    <section class="two-col">
-      <div class="panel warning">
-        <h3>Gợi ý setup trên Meta</h3>
-        <ul>
-          <li>Nên dùng <b>Advantage+ Audience</b>, sau đó đưa nhóm sở thích ở mục Targeting Suggestions vào làm tín hiệu gợi ý.</li>
-          <li>Placement nên để <b>Advantage+ Placements</b> trong giai đoạn đầu để hệ thống học dữ liệu rộng hơn.</li>
-          <li>Giai đoạn test đầu tiên nên dùng cùng một creative cho 3 ad set để so sánh CTR, CPC, lượt bắt đầu đăng ký, hoàn tất eKYC và kích hoạt tài khoản.</li>
-          <li>Nếu ngân sách nhỏ, ưu tiên chạy AUM 3 và AUM 2 trước; sau đó mới mở AUM 1 để mở rộng.</li>
-        </ul>
+        <div class="quality" id="quality"></div>
       </div>
-
-      <div class="panel danger">
-        <h3>Ghi chú compliance / loại trừ</h3>
-        <ul>
-          <li>Vì AnfinX liên quan đến sản phẩm tài chính và hàng hóa phái sinh, nên kiểm tra phần <b>Financial Products and Services</b> hoặc danh mục đặc biệt nếu Meta yêu cầu.</li>
-          <li>Tránh các thông điệp cam kết lợi nhuận, đảm bảo thắng, không rủi ro hoặc tạo cảm giác đầu tư chắc chắn có lời.</li>
-          <li>Nên dùng ngôn ngữ mang tính hướng dẫn: “tìm hiểu”, “mở tài khoản”, “được hỗ trợ”, “hiểu quy trình”.</li>
-          <li>Luôn loại trừ nhóm đã hoàn tất chuyển đổi chính để tránh lãng phí ngân sách.</li>
-        </ul>
+      <div class="kpis">
+        <article class="kpi" style="--wash:rgba(61,125,202,.12)">
+          <div class="label">Spend</div><div class="value" id="spend">—</div>
+          <div class="sub" id="spendSub">Against planned media budget</div>
+          <div class="progress"><span id="spendProgress"></span></div>
+        </article>
+        <article class="kpi">
+          <div class="label">CRM leads</div><div class="value" id="crmLeads">—</div>
+          <div class="sub" id="crmLeadsSub">Actual rows received in the lead sheet</div>
+          <div class="progress"><span id="leadProgress"></span></div>
+        </article>
+        <article class="kpi" style="--wash:rgba(201,232,106,.24)">
+          <div class="label">Meta leads</div><div class="value" id="metaLeads">—</div>
+          <div class="sub">Attributed lead actions reported by Meta</div>
+        </article>
+        <article class="kpi" style="--wash:rgba(214,147,56,.13)">
+          <div class="label">CPL — CRM</div><div class="value" id="cplCrm">—</div>
+          <div class="sub" id="cplSub">Spend divided by actual CRM leads</div>
+        </article>
+        <article class="kpi" style="--wash:rgba(43,183,169,.13)">
+          <div class="label">Link CTR</div><div class="value" id="linkCtr">—</div>
+          <div class="sub"><span id="linkClicks">—</span> link clicks from <span id="impressions">—</span> impressions</div>
+        </article>
+        <article class="kpi" style="--wash:rgba(30,155,114,.13)">
+          <div class="label">Applications</div><div class="value" id="applications">—</div>
+          <div class="sub"><span id="qualified">—</span> qualified leads detected</div>
+        </article>
       </div>
     </section>
 
-    <div class="section-title">
-      <h2>Headline & CTA gợi ý</h2>
-    </div>
+    <section class="section grid-2">
+      <article class="card">
+        <h3>Spend and lead trend</h3>
+        <p class="desc">Daily spend compared with Meta-attributed and CRM-recorded leads.</p>
+        <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+      </article>
+      <article class="card">
+        <h3>Plan attainment</h3>
+        <p class="desc">Actual media spend and CRM leads against the selected-period plan.</p>
+        <div class="chart-wrap"><canvas id="planChart"></canvas></div>
+      </article>
+    </section>
 
-    <section class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>AUM</th>
-            <th>Headline</th>
-            <th>CTA chính</th>
-            <th>CTA dự phòng</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><b>AUM 1</b></td>
-            <td>Mở tài khoản AnfinX online</td>
-            <td>Xem hướng dẫn 10 bước</td>
-            <td>Bắt đầu mở tài khoản</td>
-          </tr>
-          <tr>
-            <td><b>AUM 2</b></td>
-            <td>Khám phá hàng hóa phái sinh trên AnfinX</td>
-            <td>Tải AnfinX ngay</td>
-            <td>Bắt đầu thiết lập tài khoản</td>
-          </tr>
-          <tr>
-            <td><b>AUM 3</b></td>
-            <td>Hoàn tất tài khoản AnfinX hôm nay</td>
-            <td>Inbox để được hỗ trợ</td>
-            <td>Tiếp tục đăng ký</td>
-          </tr>
-          <tr>
-            <td><b>General</b></td>
-            <td>Mở tài khoản giao dịch với 10 bước online</td>
-            <td>Tìm hiểu cách mở tài khoản</td>
-            <td>Lưu lại hướng dẫn</td>
-          </tr>
-        </tbody>
-      </table>
+    <section class="section grid-even">
+      <article class="card">
+        <h3>Lead sources</h3>
+        <p class="desc">Distribution based on the lead sheet source or UTM source column.</p>
+        <div class="chart-wrap"><canvas id="sourceChart"></canvas></div>
+      </article>
+      <article class="card">
+        <h3>Lead status</h3>
+        <p class="desc">Current funnel/status distribution from the CRM lead sheet.</p>
+        <div class="chart-wrap"><canvas id="statusChart"></canvas></div>
+      </article>
+    </section>
+
+    <section class="section">
+      <article class="card">
+        <h3>Campaign performance</h3>
+        <p class="desc">Campaign-level media metrics with CRM lead matching where UTM campaign names align.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Campaign</th><th>Spend</th><th>Impressions</th><th>Link clicks</th>
+                <th>Meta leads</th><th>CRM leads</th><th>Link CTR</th><th>CPL CRM</th>
+              </tr>
+            </thead>
+            <tbody id="campaignRows">
+              <tr><td colspan="8">Loading campaign data…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
     </section>
 
     <footer class="footer">
-      Bản này được chuẩn bị cho chiến dịch Facebook Ads mở tài khoản AnfinX. Toàn bộ nội dung chính đã chuyển sang tiếng Việt, riêng mục Targeting Suggestions được giữ bằng tiếng Anh để dễ nhập và đối chiếu trong Meta Ads Manager.
+      <div>Net Zero Challenge · Automated reporting dashboard</div>
+      <div id="generatedAt">Report has not loaded.</div>
     </footer>
   </main>
+
+<script src="config.js"></script>
+<script>
+/**
+ * API URL is loaded from config.js.
+ * Keep the deployed Apps Script URL ending in /exec.
+ */
+const REPORT_API_URL = String(window.N0C_REPORT_API_URL || '').trim();
+
+const state = {
+  data: null,
+  charts: {},
+  autoRefreshMs: 15 * 60 * 1000
+};
+
+const el = id => document.getElementById(id);
+
+function isoDate(date){
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  const d = String(date.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+
+function setPreset(days){
+  const to = new Date();
+  const from = new Date(to);
+  from.setDate(from.getDate() - days + 1);
+  el('fromDate').value = isoDate(from);
+  el('toDate').value = isoDate(to);
+}
+
+function money(value){
+  const currency = state.data?.currency || 'VND';
+  const maximumFractionDigits = currency === 'VND' ? 0 : 2;
+  return new Intl.NumberFormat('en-US',{
+    style:'currency',currency,maximumFractionDigits
+  }).format(Number(value)||0);
+}
+
+function number(value){
+  return new Intl.NumberFormat('en-US',{maximumFractionDigits:0}).format(Number(value)||0);
+}
+
+function percent(value){
+  return new Intl.NumberFormat('en-US',{style:'percent',maximumFractionDigits:1}).format(Number(value)||0);
+}
+
+function shortDate(value){
+  const d = new Date(`${value}T00:00:00`);
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+}
+
+function dateTime(value){
+  if(!value) return 'Not available';
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? value : d.toLocaleString('en-GB',{
+    day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'
+  });
+}
+
+function clampProgress(value){
+  return `${Math.max(0,Math.min(Number(value)||0,1.25))*80}%`;
+}
+
+function showNotice(message){
+  const node = el('notice');
+  node.textContent = message;
+  node.classList.toggle('show',Boolean(message));
+}
+
+function jsonp(url, params = {}, timeoutMs = 25000){
+  return new Promise((resolve,reject)=>{
+    const callback = `__n0c_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const script = document.createElement('script');
+    const timer = setTimeout(()=>{
+      cleanup();
+      reject(new Error('The report API did not respond in time.'));
+    },timeoutMs);
+
+    const cleanup = ()=>{
+      clearTimeout(timer);
+      delete window[callback];
+      script.remove();
+    };
+
+    window[callback] = data=>{
+      cleanup();
+      resolve(data);
+    };
+
+    const query = new URLSearchParams({...params,callback,ts:Date.now()});
+    script.src = `${url}${url.includes('?')?'&':'?'}${query}`;
+    script.onerror = ()=>{
+      cleanup();
+      reject(new Error('Could not load the Apps Script report API.'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+async function loadReport(){
+  if(!REPORT_API_URL || !REPORT_API_URL.endsWith('/exec')){
+    showNotice('Chưa cấu hình API: mở file config.js và dán Apps Script Web App URL kết thúc bằng /exec.');
+    return;
+  }
+
+  const button = el('refreshBtn');
+  button.disabled = true;
+  button.textContent = 'Loading…';
+  showNotice('');
+
+  try{
+    const data = await jsonp(REPORT_API_URL,{
+      from:el('fromDate').value,
+      to:el('toDate').value
+    });
+
+    if(!data?.ok) throw new Error(data?.error || 'Unknown report API error.');
+    state.data = data;
+    render(data);
+  }catch(error){
+    showNotice(error.message || String(error));
+  }finally{
+    button.disabled = false;
+    button.textContent = 'Refresh report';
+  }
+}
+
+function render(data){
+  const s = data.summary;
+  el('spend').textContent = money(s.spend);
+  el('crmLeads').textContent = number(s.crmLeads);
+  el('metaLeads').textContent = number(s.metaLeads);
+  el('cplCrm').textContent = money(s.cplCrm);
+  el('linkCtr').textContent = percent(s.linkCtr);
+  el('applications').textContent = number(s.applications);
+  el('qualified').textContent = number(s.qualifiedLeads);
+  el('linkClicks').textContent = number(s.linkClicks);
+  el('impressions').textContent = number(s.impressions);
+
+  el('spendSub').textContent = s.plannedSpend
+    ? `${percent(s.spendProgress)} of ${money(s.plannedSpend)} planned`
+    : 'No planned spend detected for this range';
+  el('crmLeadsSub').textContent = s.plannedLeads
+    ? `${percent(s.leadProgress)} of ${number(s.plannedLeads)} planned leads`
+    : 'Actual rows received in the lead sheet';
+  el('cplSub').textContent = s.targetCpl
+    ? `Target CPL: ${money(s.targetCpl)}`
+    : 'Spend divided by actual CRM leads';
+
+  el('spendProgress').style.width = clampProgress(s.spendProgress);
+  el('leadProgress').style.width = clampProgress(s.leadProgress);
+
+  el('freshness').textContent = data.sourceUpdatedAt
+    ? `Meta synced ${dateTime(data.sourceUpdatedAt)}`
+    : `Report generated ${dateTime(data.generatedAt)}`;
+  el('generatedAt').textContent =
+    `Generated ${dateTime(data.generatedAt)} · ${data.range.from} to ${data.range.to} · cache ${data.cache}`;
+
+  const quality = el('quality');
+  quality.innerHTML = Object.entries(data.dataQuality.detectedSheets)
+    .map(([key,value])=>`<span>${escapeHtml(key.toUpperCase())}: ${escapeHtml(value)}</span>`)
+    .join('');
+
+  if(data.dataQuality.warnings?.length){
+    showNotice(data.dataQuality.warnings.join(' · '));
+  }
+
+  renderCharts(data);
+  renderCampaigns(data.campaigns || []);
+}
+
+function destroyChart(name){
+  if(state.charts[name]) state.charts[name].destroy();
+}
+
+function chartDefaults(){
+  Chart.defaults.font.family = 'Inter, ui-sans-serif, system-ui, sans-serif';
+  Chart.defaults.color = '#647985';
+  Chart.defaults.borderColor = '#e4eceb';
+}
+
+function renderCharts(data){
+  if(!window.Chart){
+    showNotice('Chart.js could not load. Check your network or CDN access.');
+    return;
+  }
+  chartDefaults();
+
+  const labels = data.daily.map(row=>shortDate(row.date));
+
+  destroyChart('trend');
+  state.charts.trend = new Chart(el('trendChart'),{
+    data:{
+      labels,
+      datasets:[
+        {
+          type:'bar',label:'Spend',data:data.daily.map(r=>r.spend),
+          yAxisID:'money',backgroundColor:'rgba(61,125,202,.24)',
+          borderColor:'#3d7dca',borderWidth:1,borderRadius:5
+        },
+        {
+          type:'line',label:'CRM leads',data:data.daily.map(r=>r.crmLeads),
+          yAxisID:'leads',borderColor:'#1e9b72',backgroundColor:'#1e9b72',
+          pointRadius:2,tension:.28,borderWidth:3
+        },
+        {
+          type:'line',label:'Meta leads',data:data.daily.map(r=>r.metaLeads),
+          yAxisID:'leads',borderColor:'#d69338',backgroundColor:'#d69338',
+          pointRadius:2,tension:.28,borderWidth:2,borderDash:[6,4]
+        }
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{position:'bottom'}},
+      scales:{
+        money:{position:'left',ticks:{callback:v=>compactMoney(v)}},
+        leads:{position:'right',grid:{drawOnChartArea:false},beginAtZero:true}
+      }
+    }
+  });
+
+  destroyChart('plan');
+  state.charts.plan = new Chart(el('planChart'),{
+    type:'bar',
+    data:{
+      labels:['Media spend','CRM leads'],
+      datasets:[
+        {
+          label:'Actual',
+          data:[
+            ratioValue(data.summary.spend,data.summary.plannedSpend),
+            ratioValue(data.summary.crmLeads,data.summary.plannedLeads)
+          ],
+          backgroundColor:['#3d7dca','#1e9b72'],borderRadius:9
+        },
+        {
+          label:'Plan',
+          data:[100,100],
+          backgroundColor:['rgba(61,125,202,.13)','rgba(30,155,114,.13)'],
+          borderRadius:9
+        }
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{
+        legend:{position:'bottom'},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`}}
+      },
+      scales:{x:{beginAtZero:true,ticks:{callback:v=>`${v}%`}}}
+    }
+  });
+
+  renderDonut('source','sourceChart',data.leads.bySource,'Lead sources');
+  renderDonut('status','statusChart',data.leads.byStatus,'Lead status');
+}
+
+function ratioValue(actual,plan){
+  return plan ? (Number(actual)||0)/(Number(plan)||0)*100 : 0;
+}
+
+function compactMoney(value){
+  const n = Number(value)||0;
+  if(Math.abs(n)>=1e9) return `${(n/1e9).toFixed(1)}B`;
+  if(Math.abs(n)>=1e6) return `${(n/1e6).toFixed(1)}M`;
+  if(Math.abs(n)>=1e3) return `${(n/1e3).toFixed(0)}K`;
+  return n;
+}
+
+function renderDonut(name,canvasId,series,label){
+  destroyChart(name);
+  const top = (series||[]).slice(0,8);
+  state.charts[name] = new Chart(el(canvasId),{
+    type:'doughnut',
+    data:{
+      labels:top.map(x=>x.label),
+      datasets:[{
+        label,data:top.map(x=>x.value),
+        backgroundColor:[
+          '#1e9b72','#3d7dca','#d69338','#2bb7a9',
+          '#7c66b6','#c95454','#8ea84a','#748c96'
+        ],
+        borderColor:'#ffffff',borderWidth:3
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'64%',
+      plugins:{legend:{position:'bottom',labels:{boxWidth:12,usePointStyle:true}}}
+    }
+  });
+}
+
+function renderCampaigns(campaigns){
+  const rows = campaigns.slice(0,30);
+  el('campaignRows').innerHTML = rows.length
+    ? rows.map(c=>`
+      <tr>
+        <td class="campaign" title="${escapeHtml(c.name)}">${escapeHtml(c.name)}</td>
+        <td>${money(c.spend)}</td>
+        <td>${number(c.impressions)}</td>
+        <td>${number(c.linkClicks)}</td>
+        <td><span class="pill">${number(c.metaLeads)}</span></td>
+        <td>${number(c.crmLeads)}</td>
+        <td>${percent(c.ctr)}</td>
+        <td>${c.crmLeads ? money(c.cplCrm) : '—'}</td>
+      </tr>
+    `).join('')
+    : '<tr><td colspan="8">No campaign rows were found for this period.</td></tr>';
+}
+
+function escapeHtml(value){
+  return String(value??'').replace(/[&<>"']/g,ch=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+  })[ch]);
+}
+
+document.querySelectorAll('.preset').forEach(button=>{
+  button.addEventListener('click',()=>{
+    setPreset(Number(button.dataset.days)||30);
+    loadReport();
+  });
+});
+el('refreshBtn').addEventListener('click',loadReport);
+el('fromDate').addEventListener('change',loadReport);
+el('toDate').addEventListener('change',loadReport);
+
+setPreset(30);
+window.addEventListener('load',()=>{
+  setTimeout(loadReport,150);
+  setInterval(loadReport,state.autoRefreshMs);
+});
+</script>
 </body>
 </html>
